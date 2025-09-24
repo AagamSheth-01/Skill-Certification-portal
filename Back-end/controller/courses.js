@@ -58,4 +58,4 @@ app.post("/api/courses", (req, res) => {
   res.json(newCourse);
 });
 
-app.listen(5000, () => console.log("Server running on port 5000"));
+

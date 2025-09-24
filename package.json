@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/AagamSheth-01/Skill-Certification-portal#readme",
   "dependencies": {
-    "framer-motion": "^12.23.19"
+    "framer-motion": "^12.23.19",
+    "multer": "^2.0.2"
   }
 }

@@ -5,14 +5,18 @@
 }
 /* Navbar */
 .navbar {
-  background-color: #2563eb; /* clean white background */
+  /* Vertical gradient background */
+  background: linear-gradient(to bottom, #2563eb, #e8eaec); /* top to bottom fade */
+  
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  
   font-family: 'Inter', 'Helvetica', 'Arial', sans-serif; /* minimalist font */
-  border-bottom: 1px solid #e5e7eb; /* subtle bottom border */
+  border-bottom: 1px solid #ffffff; /* subtle bottom border */
 }
+
 
 .nav-links li a {
   text-decoration: none;

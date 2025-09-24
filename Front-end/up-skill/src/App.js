@@ -8,7 +8,10 @@ import CoursesPage from "./components/CoursesPage";
 import CertificationsPage from "./components/CertificationsPage";
 import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
-
+import LoginPage from "./components/LoginPage";
+import RegisterPage from "./components/RegisterPage";
+import VerifyEmailPage from "./components/VerifyEmailPage";
+import VerifyPhonePage from "./components/VerifyPhonePage";
 function AnimatedRoutes() {
   const location = useLocation();
 
@@ -35,6 +38,12 @@ function AnimatedRoutes() {
           path="/contact"
           element={<PageWrapper><ContactPage /></PageWrapper>}
         />
+        <Route path="/login" 
+        element={<PageWrapper><LoginPage /></PageWrapper>} />
+        <Route path="/register" 
+        element={<PageWrapper><RegisterPage /></PageWrapper>} />
+        <Route path="/verify-email" element={<PageWrapper><VerifyEmailPage /></PageWrapper>} />
+  <Route path="/verify-phone" element={<PageWrapper><VerifyPhonePage /></PageWrapper>} />
       </Routes>
     </AnimatePresence>
   );
