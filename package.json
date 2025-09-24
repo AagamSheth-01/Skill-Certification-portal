@@ -17,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/AagamSheth-01/Skill-Certification-portal/issues"
   },
-  "homepage": "https://github.com/AagamSheth-01/Skill-Certification-portal#readme"
+  "homepage": "https://github.com/AagamSheth-01/Skill-Certification-portal#readme",
+  "dependencies": {
+    "framer-motion": "^12.23.19"
+  }
 }
