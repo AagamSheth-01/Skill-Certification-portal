@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 
 export default function LoginPage() {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  // Redirect to profile if user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/profile");
+    }
+  }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

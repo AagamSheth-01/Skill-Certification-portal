@@ -1,10 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function CoursesPage() {
   const [courses, setCourses] = useState([]);
   const [categories, setCategories] = useState({});
   const [activeCategory, setActiveCategory] = useState("");
   const categoryRefs = useRef({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:5000/api/courses")
@@ -55,25 +57,32 @@ export default function CoursesPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleEnroll = (courseId) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login"); // not logged in → redirect to login
+    } else {
+      navigate(`/courses/${courseId}`); // logged in → redirect to course page
+    }
+  };
+
   return (
     <div className="font-sans">
-<div className="tabs-container">
-  <div className="tabs-scroll">
-    {Object.keys(categories).map(cat => (
-      <div
-        key={cat}
-        onClick={() => scrollToCategory(cat)}
-        className={`tab-item ${activeCategory === cat ? "active" : ""}`}
-      >
-        {cat}
-        {activeCategory === cat && <span className="indicator"></span>}
+      <div className="tabs-container">
+        <div className="tabs-scroll">
+          {Object.keys(categories).map(cat => (
+            <div
+              key={cat}
+              onClick={() => scrollToCategory(cat)}
+              className={`tab-item ${activeCategory === cat ? "active" : ""}`}
+            >
+              {cat}
+              {activeCategory === cat && <span className="indicator"></span>}
+            </div>
+          ))}
+        </div>
       </div>
-    ))}
-  </div>
-</div>
 
-
-      {/* Horizontal scrolling course sections */}
       {Object.keys(categories).map(category => (
         <section
           key={category}
@@ -88,7 +97,12 @@ export default function CoursesPage() {
                 <div className="course-content p-4 flex flex-col flex-grow justify-between">
                   <h4 className="text-xl font-semibold mb-2">{course.title}</h4>
                   <p className="text-gray-600 mb-4">{course.description}</p>
-                  <button className="btn-primary mt-auto">Enroll Now</button>
+                  <button
+  onClick={() => navigate(`/courses/${course.id}`)}
+  className="btn-primary mt-auto"
+>
+                    Enroll Now
+                  </button>
                 </div>
               </div>
             ))}

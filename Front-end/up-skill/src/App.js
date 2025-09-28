@@ -10,40 +10,26 @@ import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
-import VerifyEmailPage from "./components/VerifyEmailPage";
-import VerifyPhonePage from "./components/VerifyPhonePage";
+import ProfilePage from "./components/ProfilePage";
+import CourseDetailPage from "./components/CourseDetailPage";
+
 function AnimatedRoutes() {
   const location = useLocation();
 
   return (
     <AnimatePresence mode="wait">
       <Routes location={location} key={location.pathname}>
-        <Route
-          path="/"
-          element={<PageWrapper><HomePage /></PageWrapper>}
-        />
-        <Route
-          path="/courses"
-          element={<PageWrapper><CoursesPage /></PageWrapper>}
-        />
-        <Route
-          path="/certifications"
-          element={<PageWrapper><CertificationsPage /></PageWrapper>}
-        />
-        <Route
-          path="/about"
-          element={<PageWrapper><AboutPage /></PageWrapper>}
-        />
-        <Route
-          path="/contact"
-          element={<PageWrapper><ContactPage /></PageWrapper>}
-        />
-        <Route path="/login" 
-        element={<PageWrapper><LoginPage /></PageWrapper>} />
-        <Route path="/register" 
-        element={<PageWrapper><RegisterPage /></PageWrapper>} />
-        <Route path="/verify-email" element={<PageWrapper><VerifyEmailPage /></PageWrapper>} />
-  <Route path="/verify-phone" element={<PageWrapper><VerifyPhonePage /></PageWrapper>} />
+        <Route path="/" element={<PageWrapper><HomePage /></PageWrapper>} />
+        <Route path="/courses" element={<PageWrapper><CoursesPage /></PageWrapper>} />
+        <Route path="/certifications" element={<PageWrapper><CertificationsPage /></PageWrapper>} />
+        <Route path="/about" element={<PageWrapper><AboutPage /></PageWrapper>} />
+        <Route path="/contact" element={<PageWrapper><ContactPage /></PageWrapper>} />
+        <Route path="/login" element={<PageWrapper><LoginPage /></PageWrapper>} />
+        <Route path="/register" element={<PageWrapper><RegisterPage /></PageWrapper>} />
+        <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />
+        <Route path="/courses/:id" element={<CourseDetailPage />} />
+        <Route path="/course/:id" element={<CourseDetailPage />} />
+
       </Routes>
     </AnimatePresence>
   );

@@ -19,7 +19,10 @@
   },
   "homepage": "https://github.com/AagamSheth-01/Skill-Certification-portal#readme",
   "dependencies": {
+    "dotenv": "^17.2.2",
     "framer-motion": "^12.23.19",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.6",
+    "twilio": "^5.10.1"
   }
 }

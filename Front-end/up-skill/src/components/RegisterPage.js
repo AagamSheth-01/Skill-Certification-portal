@@ -7,36 +7,30 @@ export default function RegisterPage() {
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-  const [profilePicFile, setProfilePic] = useState(null);
 
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("fullName", fullName);
-    formData.append("username", username);
-    formData.append("email", email);
-    formData.append("phone", phone);
-    formData.append("password", password);
-    if (profilePicFile) formData.append("profilePic", profilePicFile);
+    const payload = { fullName, username, email, password };
 
     try {
       const res = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
-        body: formData,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
       if (res.ok) {
-        alert("Registered successfully! Verify email & phone.");
+        alert("Registered successfully!");
         navigate("/login"); // redirect to login
       } else {
         alert(data.message || "Registration failed");
       }
     } catch (err) {
       console.error(err);
+      alert("Something went wrong");
     }
   };
 
@@ -45,12 +39,6 @@ export default function RegisterPage() {
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
         <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
         <form onSubmit={handleRegister} className="flex flex-col gap-4">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setProfilePic(e.target.files[0])}
-            className="border px-4 py-2 rounded"
-          />
           <input
             type="text"
             placeholder="Full Name"
@@ -72,14 +60,6 @@ export default function RegisterPage() {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="border px-4 py-2 rounded"
-            required
-          />
-          <input
-            type="tel"
-            placeholder="Phone Number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
             className="border px-4 py-2 rounded"
             required
           />
