@@ -3,6 +3,7 @@
   text-shadow: #61dafb;
   color: rgb(153, 47, 47);
 }
+
 /* Navbar */
 .navbar {
   /* Vertical gradient background */
@@ -189,4 +190,9 @@
   transition: all 0.3s ease;
 }
 
+
+=======
+.homeText{
+  justify-content: center;
+}
 
