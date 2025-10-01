@@ -41,25 +41,31 @@ router.get("/:id", async (req, res) => {
 });
 
 // Enroll user in course
-router.post("/:id/enroll", authenticate, async (req, res) => {
+router.post("/:id/enroll", async (req, res) => {
   try {
-    const courseId = req.params.id;
-    const user = await User.findById(req.userId);
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "No token" });
 
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (!user.enrolledCourses) user.enrolledCourses = [];
-    if (user.enrolledCourses.includes(courseId)) {
-      return res.status(400).json({ message: "Already enrolled" });
+    const courseId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ message: "Invalid course ID" });
     }
 
-    user.enrolledCourses.push(courseId);
-    await user.save();
+    if (!user.enrolledCourses.includes(courseId)) {
+      user.enrolledCourses.push(courseId);
+      await user.save();
+    }
 
     res.json({ message: "Enrolled successfully!" });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Something went wrong" });
   }
 });
+
 
 export default router;

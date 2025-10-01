@@ -14,6 +14,7 @@ export default function CoursesPage() {
       .then(data => {
         setCourses(data);
 
+        // Group by category
         const grouped = data.reduce((acc, course) => {
           const cat = course.category || "Other";
           if (!acc[cat]) acc[cat] = [];
@@ -22,9 +23,11 @@ export default function CoursesPage() {
         }, {});
 
         setCategories(grouped);
+
         const firstCat = Object.keys(grouped)[0];
         setActiveCategory(firstCat);
 
+        // Create refs for smooth scroll
         const refs = {};
         Object.keys(grouped).forEach(cat => {
           refs[cat] = React.createRef();
@@ -57,17 +60,9 @@ export default function CoursesPage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleEnroll = (courseId) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login"); // not logged in → redirect to login
-    } else {
-      navigate(`/courses/${courseId}`); // logged in → redirect to course page
-    }
-  };
-
   return (
     <div className="font-sans">
+      {/* Category Tabs */}
       <div className="tabs-container">
         <div className="tabs-scroll">
           {Object.keys(categories).map(cat => (
@@ -83,6 +78,7 @@ export default function CoursesPage() {
         </div>
       </div>
 
+      {/* Courses by Category */}
       {Object.keys(categories).map(category => (
         <section
           key={category}
@@ -92,15 +88,15 @@ export default function CoursesPage() {
           <h3 className="text-3xl font-bold mb-6 text-center">{category}</h3>
           <div className="flex overflow-x-auto gap-6 px-6 scrollbar-hide">
             {categories[category].map(course => (
-              <div key={course.id} className="course-card min-w-[18rem] flex-shrink-0">
+              <div key={course._id} className="course-card min-w-[18rem] flex-shrink-0">
                 <img src={course.image} alt={course.title} className="course-img" />
                 <div className="course-content p-4 flex flex-col flex-grow justify-between">
                   <h4 className="text-xl font-semibold mb-2">{course.title}</h4>
                   <p className="text-gray-600 mb-4">{course.description}</p>
                   <button
-  onClick={() => navigate(`/courses/${course.id}`)}
-  className="btn-primary mt-auto"
->
+                    onClick={() => navigate(`/courses/${course._id}`)} // ✅ use Mongo _id
+                    className="btn-primary mt-auto"
+                  >
                     Enroll Now
                   </button>
                 </div>
