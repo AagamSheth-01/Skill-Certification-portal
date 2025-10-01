@@ -12,7 +12,7 @@ import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
 import ProfilePage from "./components/ProfilePage";
 import CourseDetailPage from "./components/CourseDetailPage";
-
+import CourseLearningPage from "./components/CourseLearningPage";
 function AnimatedRoutes() {
   const location = useLocation();
 
@@ -28,7 +28,8 @@ function AnimatedRoutes() {
         <Route path="/register" element={<PageWrapper><RegisterPage /></PageWrapper>} />
         <Route path="/profile" element={<PageWrapper><ProfilePage /></PageWrapper>} />
         <Route path="/courses/:id" element={<CourseDetailPage />} />
-        <Route path="/course/:id" element={<CourseDetailPage />} />
+        
+        <Route path="/course/:id/learn" element={<CourseLearningPage />} />
 
       </Routes>
     </AnimatePresence>

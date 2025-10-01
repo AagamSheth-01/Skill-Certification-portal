@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 export default function CourseDetailPage() {
-  const { id } = useParams(); // course ID from route
+  const { id } = useParams();
   const [course, setCourse] = useState(null);
   const navigate = useNavigate();
 
@@ -13,27 +13,55 @@ export default function CourseDetailPage() {
       .catch(err => console.error(err));
   }, [id]);
 
-const handleEnroll = async () => {
+  const handleEnroll = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/courses/${id}/enroll`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      alert(data.message);
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    }
+  };
+
+  if (!course) return <p className="text-center mt-10">Loading course...</p>;
+  const handleEnrollOrStart = async () => {
   const token = localStorage.getItem("token");
   if (!token) {
     navigate("/login");
     return;
   }
 
-  try {
-    const res = await fetch(`http://localhost:5000/api/courses/${id}/enroll`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${token}` }
-    });
-    const data = await res.json();
-    alert(data.message);
-  } catch (err) {
-    console.error(err);
-    alert("Something went wrong");
+  if (course.isEnrolled) {
+    // Navigate to learning page
+    navigate(`/course/${id}/learn`);
+  } else {
+    // Enroll the user
+    try {
+      const res = await fetch(`http://localhost:5000/api/courses/${id}/enroll`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      alert(data.message);
+      // Optionally mark as enrolled locally
+      setCourse({ ...course, isEnrolled: true });
+      navigate(`/course/${id}/learn`);
+    } catch (err) {
+      console.error(err);
+      alert("Something went wrong");
+    }
   }
 };
-
-  if (!course) return <p className="text-center mt-10">Loading course...</p>;
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -50,12 +78,12 @@ const handleEnroll = async () => {
             <p className="text-gray-600 mb-4">{course.description}</p>
             <p className="text-gray-500">Category: {course.category || "Other"}</p>
           </div>
-          <button
-            onClick={handleEnroll}
-            className="mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition"
-          >
-            {localStorage.getItem("token") ? "Start Course" : "Enroll Now"}
-          </button>
+         <button
+  onClick={handleEnrollOrStart}
+  className="mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition"
+>
+  {course?.isEnrolled ? "Start Course" : "Enroll Now"}
+</button>
         </div>
       </div>
 
@@ -63,12 +91,16 @@ const handleEnroll = async () => {
       <section className="mb-8">
         <h2 className="text-2xl font-bold mb-4">Curriculum</h2>
         <ul className="space-y-2">
-          {course.curriculum?.map((item, index) => (
-            <li key={index} className="p-4 bg-gray-100 rounded shadow-sm">
-              <h3 className="font-semibold">{item.title}</h3>
-              <p className="text-gray-600">{item.description}</p>
-            </li>
-          )) || <p>No curriculum available yet.</p>}
+          {course.curriculum?.length ? (
+            course.curriculum.map((item, index) => (
+              <li key={index} className="p-4 bg-gray-100 rounded shadow-sm">
+                <h3 className="font-semibold">{item.title}</h3>
+                <p className="text-gray-600">{item.description}</p>
+              </li>
+            ))
+          ) : (
+            <p>No curriculum available yet.</p>
+          )}
         </ul>
       </section>
 
