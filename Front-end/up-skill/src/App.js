@@ -10,7 +10,7 @@ import AboutPage from "./components/AboutPage";
 import ContactPage from "./components/ContactPage";
 import LoginPage from "./components/LoginPage";
 import RegisterPage from "./components/RegisterPage";
-import ProfilePage from "./components/ProfilePage";
+import ProfilePage from "./components/ProfilePage.js";
 import CourseDetailPage from "./components/CourseDetailPage";
 import CourseLearningPage from "./components/CourseLearningPage";
 function AnimatedRoutes() {

@@ -1,11 +1,22 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import Confetti from "react-confetti";
+import LiveLectureSection from "./Livelecture"; // Live lecture & chat component
 
 export default function CourseLearningPage() {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [progress, setProgress] = useState([]);
+  const [currentLesson, setCurrentLesson] = useState({ module: 0, lesson: 0 });
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [courseComplete, setCourseComplete] = useState(false);
+  const [expandedModules, setExpandedModules] = useState({});
+  const [certificateVisible, setCertificateVisible] = useState(false);
+  const [videoWatched, setVideoWatched] = useState(false);
+  const videoRef = useRef();
 
+  // Fetch course and progress
   useEffect(() => {
     fetch(`http://localhost:5000/api/courses/${id}`)
       .then(res => res.json())
@@ -18,43 +29,196 @@ export default function CourseLearningPage() {
       .then(data => setProgress(data.completedLessons || []));
   }, [id]);
 
-  const markLessonComplete = async (index) => {
-    await fetch(`http://localhost:5000/api/courses/${id}/progress`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("token")}`
-      },
-      body: JSON.stringify({ lessonIndex: index })
-    });
-    setProgress([...progress, index]);
+  const markLessonComplete = async (moduleIndex, lessonIndex) => {
+    const lessonKey = `${moduleIndex}-${lessonIndex}`;
+    if (!progress.includes(lessonKey)) {
+      await fetch(`http://localhost:5000/api/courses/${id}/progress`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: JSON.stringify({ moduleIndex, lessonIndex })
+      });
+
+      const updatedProgress = [...progress, lessonKey];
+      setProgress(updatedProgress);
+
+      // Move to next lesson
+      const moduleLessons = course?.curriculum?.[moduleIndex]?.lessons || [];
+      if (lessonIndex + 1 < moduleLessons.length) {
+        setCurrentLesson({ module: moduleIndex, lesson: lessonIndex + 1 });
+        setCurrentVideoIndex(0);
+        setVideoWatched(false);
+      } else if (moduleIndex + 1 < (course?.curriculum?.length || 0)) {
+        setCurrentLesson({ module: moduleIndex + 1, lesson: 0 });
+        setCurrentVideoIndex(0);
+        setVideoWatched(false);
+      } else {
+        setCourseComplete(true);
+        setCertificateVisible(true);
+      }
+    }
   };
 
-  if (!course) return <p>Loading...</p>;
+  const handleVideoEnd = () => {
+    setVideoWatched(true);
+  };
+
+  const toggleModule = index => {
+    setExpandedModules(prev => ({ ...prev, [index]: !prev[index] }));
+  };
+
+  if (!course || !course.curriculum || course.curriculum.length === 0)
+    return <p className="text-center mt-20 text-xl font-semibold">Loading course...</p>;
+
+  const allLessons = course.curriculum.flatMap(module => module.lessons ?? []);
+  const totalLessons = allLessons.length;
+  const completionPercentage = totalLessons ? Math.round((progress.length / totalLessons) * 100) : 0;
+
+  const currentModule = course.curriculum[currentLesson.module];
+  const lesson = currentModule.lessons[currentLesson.lesson];
+  const currentVideo = lesson.videos?.[currentVideoIndex] || null;
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">{course.title}</h1>
-      <div>
-        {course.curriculum?.map((lesson, index) => (
-          <div key={index} className="p-4 border rounded mb-3 flex justify-between items-center">
-            <div>
-              <h3 className="font-semibold">{lesson.title}</h3>
-              <p className="text-gray-600">{lesson.description}</p>
-            </div>
-            {progress.includes(index) ? (
-              <span className="text-green-600 font-bold">Completed ✅</span>
-            ) : (
-              <button
-                onClick={() => markLessonComplete(index)}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Mark Complete
-              </button>
-            )}
+    <div className="flex flex-col lg:flex-row max-w-7xl mx-auto p-6 gap-6">
+      {/* Sidebar */}
+      <aside className="w-full lg:w-1/4 sticky top-6 h-[80vh] overflow-y-auto bg-gray-50 p-4 rounded-lg shadow-md">
+        <h2 className="text-xl font-bold mb-4">{course.title}</h2>
+        {course.curriculum.map((module, mIndex) => (
+          <div key={mIndex} className="mb-4">
+            <button
+              onClick={() => toggleModule(mIndex)}
+              className="w-full text-left font-semibold py-2 px-2 rounded hover:bg-gray-100 flex justify-between items-center"
+            >
+              {module.moduleTitle}
+              <span>{expandedModules[mIndex] ? "▲" : "▼"}</span>
+            </button>
+
+            <AnimatePresence>
+              {expandedModules[mIndex] && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="pl-4 mt-2"
+                >
+                  {module.lessons.map((lessonItem, lIndex) => {
+                    const lessonKey = `${mIndex}-${lIndex}`;
+                    const completed = progress.includes(lessonKey);
+                    const isCurrent = currentLesson.module === mIndex && currentLesson.lesson === lIndex;
+
+                    // Disable click if previous lesson not completed
+                    const prevLessonKey = lIndex > 0 ? `${mIndex}-${lIndex-1}` : `${mIndex-1}-${course.curriculum[mIndex-1]?.lessons.length-1}`;
+                    const canAccess = lIndex === 0 || progress.includes(prevLessonKey);
+
+                    return (
+                      <button
+                        key={lessonKey}
+                        onClick={() => canAccess && setCurrentLesson({ module: mIndex, lesson: lIndex })}
+                        className={`w-full text-left p-2 mb-1 rounded flex justify-between items-center ${
+                          isCurrent ? "bg-blue-100 font-semibold" : "hover:bg-gray-100"
+                        } ${!canAccess ? "opacity-50 cursor-not-allowed" : ""}`}
+                      >
+                        <span>{lessonItem.title}</span>
+                        {completed && <span className="text-green-600 font-bold">✓</span>}
+                      </button>
+                    );
+                  })}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
-      </div>
+
+        {/* Overall Progress */}
+        <div className="mt-6">
+          <p className="text-gray-600 mb-2">Course Progress</p>
+          <div className="w-full bg-gray-200 h-3 rounded">
+            <div
+              className="bg-blue-600 h-3 rounded transition-all duration-500"
+              style={{ width: `${completionPercentage}%` }}
+            />
+          </div>
+          <p className="text-right text-gray-600 mt-1">{completionPercentage}% completed</p>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1">
+        <h1 className="text-3xl font-bold mb-2">{lesson.title}</h1>
+        <p className="text-gray-700 mb-4">{lesson.description}</p>
+
+        {/* Video Player */}
+        {lesson.videos?.length > 0 && (
+          <div className="mb-4 rounded shadow overflow-hidden relative">
+            <video
+              ref={videoRef}
+              className="w-full h-96"
+              src={currentVideo.url}
+              controls
+              onEnded={handleVideoEnd}
+            />
+          </div>
+        )}
+
+        {/* Materials */}
+        {lesson.materials?.length > 0 && (
+          <div className="mb-6">
+            <h2 className="font-semibold text-lg mb-2">Materials</h2>
+            <ul className="list-disc ml-5 space-y-1">
+              {lesson.materials.map((mat, i) => (
+                <li key={i}>
+                  <a href={mat.url} target="_blank" className="text-blue-600 hover:underline">{mat.title}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Live Lecture */}
+{lesson.liveLectureId && (
+  <div className="mt-4">
+    <h2 className="font-semibold text-lg mb-2">Join Live Lecture</h2>
+    <a
+      href={`http://localhost:5000/live/${lesson.liveLectureId}`}
+      target="_blank"
+      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+    >
+      Join Live Session
+    </a>
+
+    <LiveLectureSection liveLectureId={lesson.liveLectureId} />
+  </div>
+)}
+      </main>
+
+      {/* Certificate Modal */}
+      <AnimatePresence>
+        {certificateVisible && (
+          <>
+            <Confetti recycle={false} numberOfPieces={400} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              className="fixed inset-0 flex items-center justify-center bg-black/50 z-50"
+            >
+              <motion.div className="bg-white p-8 rounded-lg max-w-lg text-center shadow-lg">
+                <h2 className="text-2xl font-bold mb-4">🎉 Congratulations!</h2>
+                <p className="mb-4">You have completed the course: {course.title}</p>
+                <button
+                  onClick={() => { setCertificateVisible(false); alert("Certificate generated!"); }}
+                  className="bg-yellow-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-600 transition"
+                >
+                  Get Certificate
+                </button>
+              </motion.div>
+            </motion.div>
+          </>
+          
+        )}
+      </AnimatePresence>
     </div>
   );
 }
