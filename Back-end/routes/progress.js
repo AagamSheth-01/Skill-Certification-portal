@@ -15,7 +15,11 @@ router.get("/:courseId", authMiddleware, async (req, res) => {
 
 // Mark lesson as complete
 router.post("/:courseId", authMiddleware, async (req, res) => {
-  const { lessonIndex } = req.body;
+  const { lessonKey } = req.body; // must match frontend
+
+  if (!lessonKey || typeof lessonKey !== "string") {
+    return res.status(400).json({ error: "lessonKey must be a string" });
+  }
 
   let progress = await Progress.findOne({
     userId: req.user.id,
@@ -26,16 +30,17 @@ router.post("/:courseId", authMiddleware, async (req, res) => {
     progress = new Progress({
       userId: req.user.id,
       courseId: req.params.courseId,
-      completedLessons: [lessonIndex],
+      completedLessons: [lessonKey],
     });
   } else {
-    if (!progress.completedLessons.includes(lessonIndex)) {
-      progress.completedLessons.push(lessonIndex);
+    if (!progress.completedLessons.includes(lessonKey)) {
+      progress.completedLessons.push(lessonKey);
     }
   }
 
   await progress.save();
-  res.json(progress);
+  res.json({ completedLessons: progress.completedLessons });
 });
+
 
 export default router;

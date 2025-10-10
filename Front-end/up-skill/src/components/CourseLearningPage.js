@@ -2,83 +2,105 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
-import LiveLectureSection from "./Livelecture"; // Live lecture & chat component
+import LiveLectureSection from "./Livelecture";
 
 export default function CourseLearningPage() {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
   const [progress, setProgress] = useState([]);
   const [currentLesson, setCurrentLesson] = useState({ module: 0, lesson: 0 });
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [courseComplete, setCourseComplete] = useState(false);
-  const [expandedModules, setExpandedModules] = useState({});
   const [certificateVisible, setCertificateVisible] = useState(false);
-  const [videoWatched, setVideoWatched] = useState(false);
   const videoRef = useRef();
 
   // Fetch course and progress
   useEffect(() => {
     fetch(`http://localhost:5000/api/courses/${id}`)
-      .then(res => res.json())
-      .then(data => setCourse(data));
+      .then((res) => res.json())
+      .then((data) => setCourse(data));
 
-    fetch(`http://localhost:5000/api/courses/${id}/progress`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    fetch(`http://localhost:5000/api/progress/${id}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     })
-      .then(res => res.json())
-      .then(data => setProgress(data.completedLessons || []));
+      .then((res) => res.json())
+      .then((data) => setProgress(data.completedLessons || []));
   }, [id]);
 
+  // Get current lesson and video
+  const currentModule = course?.curriculum[currentLesson.module];
+  const lesson = currentModule?.lessons[currentLesson.lesson];
+  const currentVideo = lesson?.videos?.[0] || null;
+  
+
+  // Auto-play next video whenever currentVideo changes
+  useEffect(() => {
+    if (videoRef.current && currentVideo) {
+      videoRef.current.load();
+      videoRef.current.play().catch(() => {});
+    }
+  }, [currentVideo]);
+
+  // Find next lesson with video
+  const findNextLessonWithVideo = (moduleIndex, lessonIndex) => {
+    for (let m = moduleIndex; m < course.curriculum.length; m++) {
+      const lessons = course.curriculum[m].lessons;
+      const start = m === moduleIndex ? lessonIndex + 1 : 0;
+      for (let l = start; l < lessons.length; l++) {
+        if (lessons[l].videos?.length > 0) return { module: m, lesson: l };
+      }
+    }
+    return null; // no more video lessons
+  };
+
+  // Mark lesson complete
   const markLessonComplete = async (moduleIndex, lessonIndex) => {
     const lessonKey = `${moduleIndex}-${lessonIndex}`;
+    console.log("Marking lesson complete:", lessonKey);
     if (!progress.includes(lessonKey)) {
-      await fetch(`http://localhost:5000/api/courses/${id}/progress`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify({ moduleIndex, lessonIndex })
-      });
+      try {
+        const res = await fetch(`http://localhost:5000/api/progress/${id}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ lessonKey }),
+        });
+        const data = await res.json();
+        setProgress(data.completedLessons);
 
-      const updatedProgress = [...progress, lessonKey];
-      setProgress(updatedProgress);
-
-      // Move to next lesson
-      const moduleLessons = course?.curriculum?.[moduleIndex]?.lessons || [];
-      if (lessonIndex + 1 < moduleLessons.length) {
-        setCurrentLesson({ module: moduleIndex, lesson: lessonIndex + 1 });
-        setCurrentVideoIndex(0);
-        setVideoWatched(false);
-      } else if (moduleIndex + 1 < (course?.curriculum?.length || 0)) {
-        setCurrentLesson({ module: moduleIndex + 1, lesson: 0 });
-        setCurrentVideoIndex(0);
-        setVideoWatched(false);
-      } else {
-        setCourseComplete(true);
-        setCertificateVisible(true);
+        // Move to next video lesson automatically
+        const nextLesson = findNextLessonWithVideo(moduleIndex, lessonIndex);
+        if (nextLesson) {
+          setCurrentLesson(nextLesson);
+        } else {
+          setCertificateVisible(true);
+        }
+      } catch (err) {
+        console.error("Error updating progress:", err);
       }
     }
   };
 
-  const handleVideoEnd = () => {
-    setVideoWatched(true);
+  // Toggle module collapse
+  const toggleModule = (index) => {
+    setCourse((prev) => {
+      const expandedModules = { ...(prev?.expandedModules || {}) };
+      expandedModules[index] = !expandedModules[index];
+      return { ...prev, expandedModules };
+    });
   };
 
-  const toggleModule = index => {
-    setExpandedModules(prev => ({ ...prev, [index]: !prev[index] }));
-  };
-
+  // Early return while loading
   if (!course || !course.curriculum || course.curriculum.length === 0)
-    return <p className="text-center mt-20 text-xl font-semibold">Loading course...</p>;
+    return (
+      <p className="text-center mt-20 text-xl font-semibold">Loading course...</p>
+    );
 
-  const allLessons = course.curriculum.flatMap(module => module.lessons ?? []);
+  const allLessons = course.curriculum.flatMap((m) => m.lessons ?? []);
   const totalLessons = allLessons.length;
-  const completionPercentage = totalLessons ? Math.round((progress.length / totalLessons) * 100) : 0;
-
-  const currentModule = course.curriculum[currentLesson.module];
-  const lesson = currentModule.lessons[currentLesson.lesson];
-  const currentVideo = lesson.videos?.[currentVideoIndex] || null;
+  const completionPercentage = totalLessons
+    ? Math.round((progress.length / totalLessons) * 100)
+    : 0;
 
   return (
     <div className="flex flex-col lg:flex-row max-w-7xl mx-auto p-6 gap-6">
@@ -92,11 +114,10 @@ export default function CourseLearningPage() {
               className="w-full text-left font-semibold py-2 px-2 rounded hover:bg-gray-100 flex justify-between items-center"
             >
               {module.moduleTitle}
-              <span>{expandedModules[mIndex] ? "▲" : "▼"}</span>
+              <span>{course.expandedModules?.[mIndex] ? "▲" : "▼"}</span>
             </button>
-
             <AnimatePresence>
-              {expandedModules[mIndex] && (
+              {course.expandedModules?.[mIndex] && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
@@ -106,16 +127,25 @@ export default function CourseLearningPage() {
                   {module.lessons.map((lessonItem, lIndex) => {
                     const lessonKey = `${mIndex}-${lIndex}`;
                     const completed = progress.includes(lessonKey);
-                    const isCurrent = currentLesson.module === mIndex && currentLesson.lesson === lIndex;
+                    const isCurrent =
+                      currentLesson.module === mIndex &&
+                      currentLesson.lesson === lIndex;
 
-                    // Disable click if previous lesson not completed
-                    const prevLessonKey = lIndex > 0 ? `${mIndex}-${lIndex-1}` : `${mIndex-1}-${course.curriculum[mIndex-1]?.lessons.length-1}`;
-                    const canAccess = lIndex === 0 || progress.includes(prevLessonKey);
+const prevLessonKey =
+  lIndex > 0
+    ? `${mIndex}-${lIndex - 1}`
+    : mIndex > 0
+    ? `${mIndex - 1}-${course.curriculum[mIndex - 1].lessons.length - 1}`
+    : null;
+
+const canAccess = lIndex === 0 || (prevLessonKey && progress.includes(prevLessonKey)) || completed;
 
                     return (
                       <button
                         key={lessonKey}
-                        onClick={() => canAccess && setCurrentLesson({ module: mIndex, lesson: lIndex })}
+                        onClick={() =>
+                          canAccess && setCurrentLesson({ module: mIndex, lesson: lIndex })
+                        }
                         className={`w-full text-left p-2 mb-1 rounded flex justify-between items-center ${
                           isCurrent ? "bg-blue-100 font-semibold" : "hover:bg-gray-100"
                         } ${!canAccess ? "opacity-50 cursor-not-allowed" : ""}`}
@@ -131,7 +161,7 @@ export default function CourseLearningPage() {
           </div>
         ))}
 
-        {/* Overall Progress */}
+        {/* Progress Bar */}
         <div className="mt-6">
           <p className="text-gray-600 mb-2">Course Progress</p>
           <div className="w-full bg-gray-200 h-3 rounded">
@@ -149,48 +179,56 @@ export default function CourseLearningPage() {
         <h1 className="text-3xl font-bold mb-2">{lesson.title}</h1>
         <p className="text-gray-700 mb-4">{lesson.description}</p>
 
-        {/* Video Player */}
-        {lesson.videos?.length > 0 && (
+        {currentVideo ? (
           <div className="mb-4 rounded shadow overflow-hidden relative">
-            <video
-              ref={videoRef}
-              className="w-full h-96"
-              src={currentVideo.url}
-              controls
-              onEnded={handleVideoEnd}
-            />
+  <video
+  ref={videoRef}
+  className="w-full h-96"
+  controls
+  onEnded={() =>
+    markLessonComplete(currentLesson.module, currentLesson.lesson)
+  }
+>
+  <source src={currentVideo.url} type="video/mp4" />
+</video>
+
+
+          </div>
+        ) : (
+          <div className="mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded">
+            ⚠️ No video is available for this lesson. Please proceed with materials or wait for the next scheduled video.
           </div>
         )}
 
-        {/* Materials */}
         {lesson.materials?.length > 0 && (
           <div className="mb-6">
             <h2 className="font-semibold text-lg mb-2">Materials</h2>
             <ul className="list-disc ml-5 space-y-1">
               {lesson.materials.map((mat, i) => (
                 <li key={i}>
-                  <a href={mat.url} target="_blank" className="text-blue-600 hover:underline">{mat.title}</a>
+                  <a href={mat.url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                    {mat.title}
+                  </a>
                 </li>
               ))}
             </ul>
           </div>
         )}
 
-        {/* Live Lecture */}
-{lesson.liveLectureId && (
-  <div className="mt-4">
-    <h2 className="font-semibold text-lg mb-2">Join Live Lecture</h2>
-    <a
-      href={`http://localhost:5000/live/${lesson.liveLectureId}`}
-      target="_blank"
-      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-    >
-      Join Live Session
-    </a>
-
-    <LiveLectureSection liveLectureId={lesson.liveLectureId} />
-  </div>
-)}
+        {lesson.liveLectureId && (
+          <div className="mt-4">
+            <h2 className="font-semibold text-lg mb-2">Join Live Lecture</h2>
+            <a
+              href={`http://localhost:5000/live/${lesson.liveLectureId}`}
+              target="_blank"
+              rel="noreferrer"
+              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+            >
+              Join Live Session
+            </a>
+            <LiveLectureSection liveLectureId={lesson.liveLectureId} />
+          </div>
+        )}
       </main>
 
       {/* Certificate Modal */}
@@ -207,16 +245,40 @@ export default function CourseLearningPage() {
               <motion.div className="bg-white p-8 rounded-lg max-w-lg text-center shadow-lg">
                 <h2 className="text-2xl font-bold mb-4">🎉 Congratulations!</h2>
                 <p className="mb-4">You have completed the course: {course.title}</p>
-                <button
-                  onClick={() => { setCertificateVisible(false); alert("Certificate generated!"); }}
-                  className="bg-yellow-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-600 transition"
-                >
-                  Get Certificate
-                </button>
+<button
+  onClick={async () => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/certificate/${id}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+      const data = await res.json();
+      setCertificateVisible(false);
+
+      // Open PDF in a new tab for preview
+      window.open(data.certificateUrl, "_blank");
+
+      // Optionally, trigger download
+      const link = document.createElement("a");
+      link.href = data.certificateUrl;
+      link.download = `Certificate_${course.title}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error("Error generating certificate:", err);
+    }
+  }}
+  className="bg-yellow-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-600 transition"
+>
+  Get Certificate
+</button>
+
               </motion.div>
             </motion.div>
           </>
-          
         )}
       </AnimatePresence>
     </div>

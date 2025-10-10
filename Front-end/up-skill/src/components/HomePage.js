@@ -1,7 +1,5 @@
-
 import './comp.css';
 import React, { useEffect, useState } from "react";
-
 
 function HomePage() {
   const [courses, setCourses] = useState([]);
@@ -15,100 +13,95 @@ function HomePage() {
 
   return (
     <div className="font-sans">
-   
+
       {/* Hero Section */}
-      <section className="bg-gray-400 py-24 text-center">
-        <h2 className="text-4xl font-bold mb-4 text-gray-800">
-          Upgrade Your Skills, Earn Certifications
-        </h2>
-        <p className="text-gray-600 mb-6">
-          Join thousands of learners to gain professional skills and globally recognized certifications.
-        </p>
-        <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
-          Get Started
-        </button>
+      <section className="bg-gradient-to-r from-gray-300 via-gray-400 to-gray-500 py-32 text-center relative overflow-hidden">
+        <div className="relative z-10">
+          <h2 className="text-5xl md:text-6xl font-extrabold mb-6 text-gray-900 drop-shadow-lg">
+            Upgrade Your Skills, Earn Certifications
+          </h2>
+          <p className="text-gray-700 text-lg md:text-xl mb-8 max-w-2xl mx-auto">
+            Join thousands of learners to gain professional skills and globally recognized certifications.
+          </p>
+          <button className="bg-blue-600 text-white px-8 py-4 rounded-xl hover:bg-blue-700 transition duration-300 shadow-lg hover:shadow-xl text-lg font-semibold">
+            Login
+          </button>
+        </div>
+        <div className="absolute top-0 left-0 w-full h-full opacity-20 bg-[url('/hero-bg.png')] bg-cover bg-center"></div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-white text-center">
-        <h3 className="text-3xl font-bold mb-12">Why Choose UpSkill?</h3>
-        <div className="flex flex-wrap justify-center gap-8">
-          <div className="w-72 p-6 bg-gray-50 rounded-lg shadow hover:shadow-lg transition">
-            <h4 className="text-xl font-semibold mb-2">Expert Courses</h4>
-            <p className="text-gray-600">Learn from industry professionals and certified instructors.</p>
+      <section className="py-20 bg-white text-center">
+        <h3 className="text-4xl md:text-5xl font-bold mb-14">Why Choose UpSkill?</h3>
+        <div className="flex flex-wrap justify-center gap-10">
+          <div className="w-80 p-8 bg-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 duration-300">
+            <h4 className="text-2xl font-semibold mb-3">Expert Courses</h4>
+            <p className="text-gray-600 text-lg">Learn from industry professionals and certified instructors.</p>
           </div>
-          <div className="w-72 p-6 bg-gray-50 rounded-lg shadow hover:shadow-lg transition">
-            <h4 className="text-xl font-semibold mb-2">Global Certifications</h4>
-            <p className="text-gray-600">Earn recognized certificates to boost your career opportunities.</p>
+          <div className="w-80 p-8 bg-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 duration-300">
+            <h4 className="text-2xl font-semibold mb-3">Global Certifications</h4>
+            <p className="text-gray-600 text-lg">Earn recognized certificates to boost your career opportunities.</p>
           </div>
-          <div className="w-72 p-6 bg-gray-50 rounded-lg shadow hover:shadow-lg transition">
-            <h4 className="text-xl font-semibold mb-2">Flexible Learning</h4>
-            <p className="text-gray-600">Learn at your own pace with online and self-paced courses.</p>
+          <div className="w-80 p-8 bg-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 duration-300">
+            <h4 className="text-2xl font-semibold mb-3">Flexible Learning</h4>
+            <p className="text-gray-600 text-lg">Learn at your own pace with online and self-paced courses.</p>
           </div>
         </div>
       </section>
 
       {/* Courses Section */}
-      <section className="py-16 bg-gray-100 text-center">
-  <h3 className="text-3xl font-bold mb-12">Featured Courses</h3>
-  <div className="flex flex-wrap justify-center gap-8">
-    {courses.map(course => (
-      <div
-        key={course.id}
-        className="w-72 bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition flex flex-col"
-      >
-        {/* Fixed-size Image */}
-        <img
-          src={course.image}
-          alt={course.title}
-          className="h-40 w-full object-cover"
-        />
-
-        {/* Content aligned with flex */}
-        <div className="p-6 flex flex-col flex-grow justify-between">
-          <div>
-            <h4 className="text-xl font-semibold mb-2">{course.title}</h4>
-            <p className="text-gray-600 mb-4">{course.description}</p>
-          </div>
-
-          {/* Button always aligned at bottom */}
-          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition mt-auto">
-            Enroll Now
-          </button>
+      <section className="py-20 bg-gray-100 text-center">
+        <h3 className="text-4xl md:text-5xl font-bold mb-16">Featured Courses</h3>
+        <div className="flex flex-wrap justify-center gap-10">
+          {courses.map(course => (
+            <div
+              key={course.id}
+              className="w-80 bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2 flex flex-col"
+            >
+              <img
+                src={course.image}
+                alt={course.title}
+                className="h-48 w-full object-cover"
+              />
+              <div className="p-6 flex flex-col flex-grow justify-between">
+                <div>
+                  <h4 className="text-2xl font-semibold mb-3">{course.title}</h4>
+                  <p className="text-gray-600 mb-5 text-lg">{course.description}</p>
+                </div>
+                <button className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition mt-auto font-semibold shadow-md hover:shadow-lg">
+                  Enroll Now
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
-    ))}
-  </div>
-</section>
+      </section>
 
- 
       {/* Testimonials Section */}
-      <section className="py-16 bg-white text-center">
-        <h3 className="text-3xl font-bold mb-12">What Our Learners Say</h3>
-        <div className="flex flex-wrap justify-center gap-8">
-          <div className="w-72 p-6 bg-gray-50 rounded-lg shadow hover:shadow-lg transition">
-            <p className="text-gray-600 mb-4">
+      <section className="py-20 bg-white text-center relative">
+        <h3 className="text-4xl md:text-5xl font-bold mb-16">What Our Learners Say</h3>
+        <div className="flex flex-wrap justify-center gap-10">
+          <div className="w-80 p-8 bg-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 duration-300">
+            <p className="text-gray-600 mb-5 text-lg">
               "SkillCert helped me learn new technologies and get certified. Highly recommended!"
             </p>
-            <h5 className="font-semibold">- John Doe</h5>
+            <h5 className="font-bold text-gray-800">- John Doe</h5>
           </div>
-          <div className="w-72 p-6 bg-gray-50 rounded-lg shadow hover:shadow-lg transition">
-            <p className="text-gray-600 mb-4">
+          <div className="w-80 p-8 bg-gray-50 rounded-2xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-2 duration-300">
+            <p className="text-gray-600 mb-5 text-lg">
               "The courses are well-structured and easy to follow. I landed a better job thanks to SkillCert."
             </p>
-            <h5 className="font-semibold">- Jane Smith</h5>
+            <h5 className="font-bold text-gray-800">- Jane Smith</h5>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-blue-600 text-white py-8 text-center">
-        <p>&copy; 2025 UpSkill. All rights reserved.</p>
+      <footer className="bg-blue-600 text-white py-10 text-center">
+        <p className="text-lg">&copy; 2025 UpSkill. All rights reserved.</p>
       </footer>
     </div>
   );
 }
+
 export default HomePage;
-
-
-

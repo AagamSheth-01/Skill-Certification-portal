@@ -2,6 +2,7 @@ import express from "express";
 import Course from "../model/Course.js";
 import User from "../model/User.js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 const router = express.Router();
 

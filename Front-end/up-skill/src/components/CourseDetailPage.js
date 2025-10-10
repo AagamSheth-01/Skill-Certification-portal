@@ -7,61 +7,71 @@ export default function CourseDetailPage() {
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const [progress, setProgress] = useState([]);
 
-  // Fetch course details
-  useEffect(() => {
-    const fetchCourse = async () => {
-      try {
-        const res = await fetch(`http://localhost:5000/api/courses/${id}`);
-        const data = await res.json();
-        setCourse(data);
-      } catch (err) {
-        console.error(err);
-        alert("Failed to fetch course details");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCourse();
-  }, [id]);
-
-  // Enroll or start course
-  const handleEnrollOrStart = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-
-    // If already enrolled, start course
-    if (course?.isEnrolled) {
-      navigate(`/courses/${id}/learn`);
-      return;
-    }
-
-    // Otherwise, enroll
+useEffect(() => {
+  const fetchCourse = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/courses/${id}/enroll`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
-      });
+      const res = await fetch(`http://localhost:5000/api/courses/${id}`);
       const data = await res.json();
-      alert(data.message);
-
-      if (res.ok) {
-        setCourse({ ...course, isEnrolled: true });
-        navigate(`/course/${id}/learn`); // match the route exactly
-
-
-      }
+      setCourse(data);
     } catch (err) {
       console.error(err);
-      alert("Something went wrong while enrolling");
+      alert("Failed to fetch course details");
+    } finally {
+      setLoading(false);
     }
   };
+  fetchCourse();
+
+  // Fetch user progress for this course
+  fetch(`http://localhost:5000/api/progress/${id}`, {
+    headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+  })
+    .then(res => res.json())
+    .then(data => setProgress(data.completedLessons || []));
+}, [id]);
+
+// Enroll or start course
+const handleEnrollOrStart = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
+  // If already enrolled, start course
+  if (course?.isEnrolled) {
+    navigate(`/courses/${id}/learn`);
+    return;
+  }
+
+  // Otherwise, enroll
+  try {
+    const res = await fetch(`http://localhost:5000/api/courses/${id}/enroll`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    const data = await res.json();
+    alert(data.message);
+
+    if (res.ok) {
+      setCourse({ ...course, isEnrolled: true });
+      navigate(`/course/${id}/learn`);
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong while enrolling");
+  }
+};
 
   if (loading) return <p className="text-center mt-10">Loading course...</p>;
   if (!course) return <p className="text-center mt-10">Course not found</p>;
+let buttonText = "Enroll Now"; // default
+
+if (course?.isEnrolled) {
+  buttonText = progress.length > 0 ? "Continue Course" : "Start Course";
+}
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -80,12 +90,13 @@ export default function CourseDetailPage() {
             <p className="text-gray-600 mb-4">{course.description}</p>
             <p className="text-gray-500">Category: {course.category || "Other"}</p>
           </div>
-          <button
-            onClick={handleEnrollOrStart}
-            className="mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition"
-          >
-            {course?.isEnrolled ? "Start Course" : "Enroll Now"}
-          </button>
+<button
+  onClick={handleEnrollOrStart}
+  className="mt-4 bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition"
+>
+  {course?.isEnrolled ? "Start Course" : "Enroll Now"}
+</button>
+
         </div>
       </div>
 
