@@ -52,6 +52,8 @@ export const createCertificate = async (req, res) => {
         certificateUrl: `/certificates/${fileName}`,
       });
       await certificate.save();
+      console.log("Certificate saved at:", filePath);
+
 
       res.status(201).json({
         message: "Certificate issued successfully",
