@@ -1,7 +1,7 @@
 import PDFDocument from "pdfkit";
 import fs from "fs";
 import path from "path";
-import Certificate from "../model/Certificates.js"; // Your Certificate model
+import Certificate from "../model/Certificates.js";
 import Course from "../model/Course.js";
 import User from "../model/User.js";
 
@@ -34,17 +34,16 @@ export const createCertificate = async (req, res) => {
     doc.moveDown(2);
     doc.fontSize(22).text("This certifies that", { align: "center" });
     doc.moveDown(1);
-    doc.fontSize(26).text(user.name, { align: "center", underline: true });
+    doc.fontSize(26).text(user.fullName, { align: "center", underline: true }); // <-- fixed
     doc.moveDown(1);
     doc.fontSize(22).text("has successfully completed the course", { align: "center" });
     doc.moveDown(1);
     doc.fontSize(24).text(course.title, { align: "center", bold: true });
     doc.moveDown(3);
-    doc.fontSize(16).text(`Date: ${new Date().toLocaleDateString()}`, { align: "center" });
+    doc.fontSize(16).text(`Date: ${new Date().toLocaleDateString()}`, { align: "center" }); // <-- fixed template string
 
     doc.end();
 
-    // Save certificate in DB after PDF is finished
     stream.on("finish", async () => {
       const certificate = new Certificate({
         user: userId,
@@ -53,7 +52,6 @@ export const createCertificate = async (req, res) => {
       });
       await certificate.save();
       console.log("Certificate saved at:", filePath);
-
 
       res.status(201).json({
         message: "Certificate issued successfully",
