@@ -227,7 +227,7 @@ export default function CourseLearningPage() {
             >
               Join Live Session
             </a>
-            <LiveLectureSection liveLectureId={lesson.liveLectureId} />
+           <LiveLectureSection courseId={id} />
           </div>
         )}
       </main>
@@ -250,24 +250,26 @@ export default function CourseLearningPage() {
                   onClick={async () => {
                     setGenerating(true);
                     try {
-                      const res = await fetch(`${host}/api/certificate/${id}`, {
-                        method: "POST",
-                        headers: {
-                          Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                      });
-                      const data = await res.json();
+const res = await fetch(`${host}/api/certificates/${id}`, {
+  method: "POST",
+  headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+});
+const data = await res.json();
 
-                      // Open PDF in new tab
-                      window.open(data.certificateUrl, "_blank");
+const certificateURL = `${host}${data.certificateUrl}`; // prepend host
 
-                      // Trigger download
-                      const link = document.createElement("a");
-                      link.href = data.certificateUrl;
-                      link.download = `Certificate_${course.title}.pdf`;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
+// Open PDF in new tab
+window.open(certificateURL, "_blank");
+
+// Trigger download
+const link = document.createElement("a");
+link.href = certificateURL;
+link.download = `Certificate_${course.title}.pdf`;
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+
+                      
 
                       setCertificateVisible(false);
                     } catch (err) {
