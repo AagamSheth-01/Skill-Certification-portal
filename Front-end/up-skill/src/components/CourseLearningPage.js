@@ -10,28 +10,28 @@ export default function CourseLearningPage() {
   const [progress, setProgress] = useState([]);
   const [currentLesson, setCurrentLesson] = useState({ module: 0, lesson: 0 });
   const [certificateVisible, setCertificateVisible] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const videoRef = useRef();
+
+  const host = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   // Fetch course and progress
   useEffect(() => {
-    fetch(`http://localhost:5000/api/courses/${id}`)
+    fetch(`${host}/api/courses/${id}`)
       .then((res) => res.json())
       .then((data) => setCourse(data));
 
-    fetch(`http://localhost:5000/api/progress/${id}`, {
+    fetch(`${host}/api/progress/${id}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     })
       .then((res) => res.json())
       .then((data) => setProgress(data.completedLessons || []));
   }, [id]);
 
-  // Get current lesson and video
   const currentModule = course?.curriculum[currentLesson.module];
   const lesson = currentModule?.lessons[currentLesson.lesson];
   const currentVideo = lesson?.videos?.[0] || null;
-  
 
-  // Auto-play next video whenever currentVideo changes
   useEffect(() => {
     if (videoRef.current && currentVideo) {
       videoRef.current.load();
@@ -39,7 +39,6 @@ export default function CourseLearningPage() {
     }
   }, [currentVideo]);
 
-  // Find next lesson with video
   const findNextLessonWithVideo = (moduleIndex, lessonIndex) => {
     for (let m = moduleIndex; m < course.curriculum.length; m++) {
       const lessons = course.curriculum[m].lessons;
@@ -48,16 +47,14 @@ export default function CourseLearningPage() {
         if (lessons[l].videos?.length > 0) return { module: m, lesson: l };
       }
     }
-    return null; // no more video lessons
+    return null;
   };
 
-  // Mark lesson complete
   const markLessonComplete = async (moduleIndex, lessonIndex) => {
     const lessonKey = `${moduleIndex}-${lessonIndex}`;
-    console.log("Marking lesson complete:", lessonKey);
     if (!progress.includes(lessonKey)) {
       try {
-        const res = await fetch(`http://localhost:5000/api/progress/${id}`, {
+        const res = await fetch(`${host}/api/progress/${id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -68,7 +65,6 @@ export default function CourseLearningPage() {
         const data = await res.json();
         setProgress(data.completedLessons);
 
-        // Move to next video lesson automatically
         const nextLesson = findNextLessonWithVideo(moduleIndex, lessonIndex);
         if (nextLesson) {
           setCurrentLesson(nextLesson);
@@ -81,7 +77,6 @@ export default function CourseLearningPage() {
     }
   };
 
-  // Toggle module collapse
   const toggleModule = (index) => {
     setCourse((prev) => {
       const expandedModules = { ...(prev?.expandedModules || {}) };
@@ -90,7 +85,6 @@ export default function CourseLearningPage() {
     });
   };
 
-  // Early return while loading
   if (!course || !course.curriculum || course.curriculum.length === 0)
     return (
       <p className="text-center mt-20 text-xl font-semibold">Loading course...</p>
@@ -131,20 +125,24 @@ export default function CourseLearningPage() {
                       currentLesson.module === mIndex &&
                       currentLesson.lesson === lIndex;
 
-const prevLessonKey =
-  lIndex > 0
-    ? `${mIndex}-${lIndex - 1}`
-    : mIndex > 0
-    ? `${mIndex - 1}-${course.curriculum[mIndex - 1].lessons.length - 1}`
-    : null;
+                    const prevLessonKey =
+                      lIndex > 0
+                        ? `${mIndex}-${lIndex - 1}`
+                        : mIndex > 0
+                        ? `${mIndex - 1}-${course.curriculum[mIndex - 1].lessons.length - 1}`
+                        : null;
 
-const canAccess = lIndex === 0 || (prevLessonKey && progress.includes(prevLessonKey)) || completed;
+                    const canAccess =
+                      lIndex === 0 ||
+                      (prevLessonKey && progress.includes(prevLessonKey)) ||
+                      completed;
 
                     return (
                       <button
                         key={lessonKey}
                         onClick={() =>
-                          canAccess && setCurrentLesson({ module: mIndex, lesson: lIndex })
+                          canAccess &&
+                          setCurrentLesson({ module: mIndex, lesson: lIndex })
                         }
                         className={`w-full text-left p-2 mb-1 rounded flex justify-between items-center ${
                           isCurrent ? "bg-blue-100 font-semibold" : "hover:bg-gray-100"
@@ -181,18 +179,16 @@ const canAccess = lIndex === 0 || (prevLessonKey && progress.includes(prevLesson
 
         {currentVideo ? (
           <div className="mb-4 rounded shadow overflow-hidden relative">
-  <video
-  ref={videoRef}
-  className="w-full h-96"
-  controls
-  onEnded={() =>
-    markLessonComplete(currentLesson.module, currentLesson.lesson)
-  }
->
-  <source src={currentVideo.url} type="video/mp4" />
-</video>
-
-
+            <video
+              ref={videoRef}
+              className="w-full h-96"
+              controls
+              onEnded={() =>
+                markLessonComplete(currentLesson.module, currentLesson.lesson)
+              }
+            >
+              <source src={currentVideo.url} type="video/mp4" />
+            </video>
           </div>
         ) : (
           <div className="mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded">
@@ -206,7 +202,12 @@ const canAccess = lIndex === 0 || (prevLessonKey && progress.includes(prevLesson
             <ul className="list-disc ml-5 space-y-1">
               {lesson.materials.map((mat, i) => (
                 <li key={i}>
-                  <a href={mat.url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">
+                  <a
+                    href={mat.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-blue-600 hover:underline"
+                  >
                     {mat.title}
                   </a>
                 </li>
@@ -245,37 +246,43 @@ const canAccess = lIndex === 0 || (prevLessonKey && progress.includes(prevLesson
               <motion.div className="bg-white p-8 rounded-lg max-w-lg text-center shadow-lg">
                 <h2 className="text-2xl font-bold mb-4">🎉 Congratulations!</h2>
                 <p className="mb-4">You have completed the course: {course.title}</p>
-<button
-  onClick={async () => {
-    try {
-      const res = await fetch(`http://localhost:5000/api/certificate/${id}`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      const data = await res.json();
-      setCertificateVisible(false);
+                <button
+                  onClick={async () => {
+                    setGenerating(true);
+                    try {
+                      const res = await fetch(`${host}/api/certificate/${id}`, {
+                        method: "POST",
+                        headers: {
+                          Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        },
+                      });
+                      const data = await res.json();
 
-      // Open PDF in a new tab for preview
-      window.open(data.certificateUrl, "_blank");
+                      // Open PDF in new tab
+                      window.open(data.certificateUrl, "_blank");
 
-      // Optionally, trigger download
-      const link = document.createElement("a");
-      link.href = data.certificateUrl;
-      link.download = `Certificate_${course.title}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (err) {
-      console.error("Error generating certificate:", err);
-    }
-  }}
-  className="bg-yellow-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-600 transition"
->
-  Get Certificate
-</button>
+                      // Trigger download
+                      const link = document.createElement("a");
+                      link.href = data.certificateUrl;
+                      link.download = `Certificate_${course.title}.pdf`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
 
+                      setCertificateVisible(false);
+                    } catch (err) {
+                      console.error("Error generating certificate:", err);
+                    } finally {
+                      setGenerating(false);
+                    }
+                  }}
+                  disabled={generating}
+                  className={`bg-yellow-500 text-white px-6 py-2 rounded-lg font-semibold hover:bg-yellow-600 transition ${
+                    generating ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                >
+                  {generating ? "Generating..." : "Get Certificate"}
+                </button>
               </motion.div>
             </motion.div>
           </>

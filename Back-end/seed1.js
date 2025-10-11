@@ -1,63 +1,75 @@
 import mongoose from "mongoose";
-import Course from "./model/Course"; // adjust path
-import LiveLecture from "./model/livelecture"; // adjust path
+import Course from "./model/Course.js"; // adjust path
+import LiveLecture from "./model/livelecture.js"; // adjust path
 
 async function seed() {
   try {
-    // 1️⃣ Clear previous data
-    await Course.deleteMany({});
-    await LiveLecture.deleteMany({});
+   
 
     // 2️⃣ Create course
     const course = new Course({
-      title: "Full Stack Development Basics",
-      fullDescription: "Test course with local video, PDF, and live lecture.",
-      category: "Web Development",
-      image: "https://picsum.photos/300/150?random=101",
-      instructor: {
-        name: "John Doe",
-        bio: "Full Stack Developer and Mentor.",
-        avatar: "https://picsum.photos/100/100?random=201",
-      },
-      curriculum: [
+  title: "Cloud Computing with AWS",
+  fullDescription: "Learn cloud fundamentals and AWS services such as EC2, S3, and Lambda.",
+  category: "Cloud & DevOps",
+  image: "https://picsum.photos/300/150?random=506",
+  instructor: {
+    name: "Daniel White",
+    bio: "Cloud Architect and AWS Certified Solutions Professional.",
+    avatar: "https://picsum.photos/100/100?random=606",
+  },
+  curriculum: [
+    {
+      moduleTitle: "Module 1: AWS Basics",
+      moduleDescription: "Explore AWS architecture and essential cloud services.",
+      lessons: [
         {
-          moduleTitle: "Module 1: Getting Started",
-          moduleDescription: "Setup and introduction.",
-          lessons: [
-            {
-              title: "Introduction to Full Stack",
-              description: "Overview of front-end and back-end development.",
-              videos: [
-                { title: "Intro Video", url: "http://localhost:5000/uploads/videos/test.mp4" }
-              ],
-              materials: [
-                { title: "Course Notes", url: "http://localhost:5000/uploads/docs/test.pdf" }
-              ],
-              quiz: true,
-            },
-            {
-              title: "Live Lecture Session",
-              description: "Scheduled live Q&A session.",
-              // link liveLectureId later
-            },
-          ],
+          title: "Introduction to AWS",
+          description: "Learn how AWS infrastructure works.",
+          videos: [{ title: "AWS Intro", url: "http://localhost:5000/uploads/videos/test.mp4" }],
+          materials: [{ title: "AWS Basics", url: "http://localhost:5000/uploads/docs/test.pdf" }],
+          quiz: true,
+        },
+        {
+          title: "Live Lecture: Deploying on AWS",
+          description: "Deploy a demo app live using AWS services.",
         },
       ],
-    });
+    },
+  ],
+}
+
+
+
+
+
+
+);
 
     await course.save();
 
+
     // 3️⃣ Create live lecture for the second lesson
     const liveLecture = new LiveLecture({
-      courseId: course._id.toString(),
-      moduleIndex: 0,
-      lessonIndex: 1, // second lesson
-      title: "Kickoff Live Session",
-      startTime: new Date("2025-10-05T15:00:00Z"),
-      endTime: new Date("2025-10-05T16:00:00Z"),
-      instructorId: "john-doe-id", // can use a dummy string or user ID
-      chat: [],
-    });
+  courseId: course._id.toString(),
+  moduleIndex: 0,
+  lessonIndex: 1,
+  title: "Live Lecture: Deploying on AWS",
+  startTime: new Date("2025-11-05T13:00:00Z"),
+  endTime: new Date("2025-11-05T14:30:00Z"),
+  instructorId: "daniel-white-id",
+  chat: [],
+}
+
+
+
+
+
+
+
+
+
+
+);
 
     await liveLecture.save();
 
