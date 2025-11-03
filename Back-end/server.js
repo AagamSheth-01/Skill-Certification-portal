@@ -17,7 +17,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: ["https://skill-certification-portal.vercel.app"], // your frontend URL
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // if you're using cookies/auth
+  }));
 app.use(express.json());
 app.use("/certificates", express.static(path.join(__dirname, "certificates"))); // serve PDFs
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
