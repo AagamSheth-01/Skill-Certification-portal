@@ -5,6 +5,9 @@ import LiveLecture from "./model/livelecture.js";
 
 dotenv.config();
 
+console.log("MONGO_URI value →", JSON.stringify(process.env.MONGO_URI));
+
+
 async function seed() {
   try {
     // Connect to MongoDB

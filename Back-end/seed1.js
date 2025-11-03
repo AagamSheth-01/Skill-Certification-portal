@@ -1,10 +1,18 @@
+// ===============================
+// 🌱 Skill Certification Portal Seeder
+// ===============================
+
 import mongoose from "mongoose";
+import dotenv from "dotenv";
 import Course from "./model/Course.js";
 import LiveLecture from "./model/livelecture.js";
 
+// Load environment variables
+dotenv.config();
+
 async function seed() {
   try {
-    // 🧹 Clear old data
+    // Clear old data
     await Course.deleteMany({});
     await LiveLecture.deleteMany({});
     console.log("🧹 Previous data cleared");
@@ -17,11 +25,11 @@ async function seed() {
       fullDescription:
         "Learn the core concepts of Artificial Intelligence including machine learning, neural networks, and real-world AI applications.",
       category: "AI & Machine Learning",
-      image: "http://localhost:5000/uploads/images/ai.jpg",
+      image: "https://skill-certification-portal.onrender.com/uploads/images/ai.jpg",
       instructor: {
         name: "Sophia Turner",
         bio: "AI Engineer and Data Scientist with expertise in machine learning models.",
-        avatar: "http://localhost:5000/uploads/images/a_ai.png",
+        avatar: "https://skill-certification-portal.onrender.com/uploads/images/a_ai.png",
       },
       curriculum: [
         {
@@ -31,8 +39,18 @@ async function seed() {
             {
               title: "Understanding AI Concepts",
               description: "Explore AI fundamentals and real-world examples.",
-              videos: [{ title: "AI Overview", url: "http://localhost:5000/uploads/videos/test.mp4" }],
-              materials: [{ title: "AI Basics PDF", url: "http://localhost:5000/uploads/docs/test.pdf" }],
+              videos: [
+                {
+                  title: "AI Overview",
+                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
+                },
+              ],
+              materials: [
+                {
+                  title: "AI Basics PDF",
+                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
+                },
+              ],
               quiz: true,
             },
             {
@@ -47,7 +65,7 @@ async function seed() {
     await courseAI.save();
 
     const liveAI = new LiveLecture({
-      courseId: courseAI._id.toString(),
+      courseId: courseAI._id,
       moduleIndex: 0,
       lessonIndex: 1,
       title: "Live Lecture: AI in Action",
@@ -57,7 +75,8 @@ async function seed() {
       chat: [],
     });
     await liveAI.save();
-    courseAI.curriculum[0].lessons[1].liveLectureId = liveAI._id.toString();
+
+    courseAI.curriculum[0].lessons[1].liveLectureId = liveAI._id;
     await courseAI.save();
 
     // =============================
@@ -65,13 +84,14 @@ async function seed() {
     // =============================
     const courseAWS = new Course({
       title: "Cloud Computing with AWS",
-      fullDescription: "Learn cloud fundamentals and AWS services such as EC2, S3, and Lambda.",
+      fullDescription:
+        "Learn cloud fundamentals and AWS services such as EC2, S3, and Lambda.",
       category: "Cloud & DevOps",
-      image: "http://localhost:5000/uploads/images/aws.jpg",
+      image: "https://skill-certification-portal.onrender.com/uploads/images/aws.jpg",
       instructor: {
         name: "Daniel White",
         bio: "Cloud Architect and AWS Certified Solutions Professional.",
-        avatar: "http://localhost:5000/uploads/images/a_aws.png",
+        avatar: "https://skill-certification-portal.onrender.com/uploads/images/a_aws.png",
       },
       curriculum: [
         {
@@ -81,8 +101,18 @@ async function seed() {
             {
               title: "Introduction to AWS",
               description: "Learn how AWS infrastructure works.",
-              videos: [{ title: "AWS Intro", url: "http://localhost:5000/uploads/videos/test.mp4" }],
-              materials: [{ title: "AWS Basics", url: "http://localhost:5000/uploads/docs/test.pdf" }],
+              videos: [
+                {
+                  title: "AWS Intro",
+                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
+                },
+              ],
+              materials: [
+                {
+                  title: "AWS Basics",
+                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
+                },
+              ],
               quiz: true,
             },
             {
@@ -97,7 +127,7 @@ async function seed() {
     await courseAWS.save();
 
     const liveAWS = new LiveLecture({
-      courseId: courseAWS._id.toString(),
+      courseId: courseAWS._id,
       moduleIndex: 0,
       lessonIndex: 1,
       title: "Live Lecture: Deploying on AWS",
@@ -107,7 +137,8 @@ async function seed() {
       chat: [],
     });
     await liveAWS.save();
-    courseAWS.curriculum[0].lessons[1].liveLectureId = liveAWS._id.toString();
+
+    courseAWS.curriculum[0].lessons[1].liveLectureId = liveAWS._id;
     await courseAWS.save();
 
     // =============================
@@ -118,11 +149,12 @@ async function seed() {
       fullDescription:
         "Master both frontend and backend web development using React, Node.js, Express, and MongoDB.",
       category: "Web Development",
-      image: "http://localhost:5000/uploads/images/fullstack.jpg",
+      image: "https://skill-certification-portal.onrender.com/uploads/images/fullstack.jpg",
       instructor: {
         name: "John Doe",
         bio: "Full Stack Developer and Mentor with 8+ years of experience.",
-        avatar: "http://localhost:5000/uploads/images/a_fullstack.png",
+        avatar:
+          "https://skill-certification-portal.onrender.com/uploads/images/a_fullstack.png",
       },
       curriculum: [
         {
@@ -132,8 +164,18 @@ async function seed() {
             {
               title: "What is Full Stack Development?",
               description: "Overview of frontend and backend integration.",
-              videos: [{ title: "Full Stack Intro", url: "http://localhost:5000/uploads/videos/test.mp4" }],
-              materials: [{ title: "Full Stack Notes", url: "http://localhost:5000/uploads/docs/test.pdf" }],
+              videos: [
+                {
+                  title: "Full Stack Intro",
+                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
+                },
+              ],
+              materials: [
+                {
+                  title: "Full Stack Notes",
+                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
+                },
+              ],
               quiz: true,
             },
             {
@@ -148,7 +190,7 @@ async function seed() {
     await courseFS.save();
 
     const liveFS = new LiveLecture({
-      courseId: courseFS._id.toString(),
+      courseId: courseFS._id,
       moduleIndex: 0,
       lessonIndex: 1,
       title: "Live Lecture: Building Full Stack Apps",
@@ -158,7 +200,8 @@ async function seed() {
       chat: [],
     });
     await liveFS.save();
-    courseFS.curriculum[0].lessons[1].liveLectureId = liveFS._id.toString();
+
+    courseFS.curriculum[0].lessons[1].liveLectureId = liveFS._id;
     await courseFS.save();
 
     // =============================
@@ -169,11 +212,12 @@ async function seed() {
       fullDescription:
         "Learn how to build modern and dynamic web interfaces using React.js, hooks, and state management.",
       category: "Frontend",
-      image: "http://localhost:5000/uploads/images/react.jpg",
+      image: "https://skill-certification-portal.onrender.com/uploads/images/react.jpg",
       instructor: {
         name: "Michael Lee",
         bio: "Frontend Developer with 6+ years of experience in React and Redux.",
-        avatar: "http://localhost:5000/uploads/images/a_react.png",
+        avatar:
+          "https://skill-certification-portal.onrender.com/uploads/images/a_react.png",
       },
       curriculum: [
         {
@@ -183,8 +227,18 @@ async function seed() {
             {
               title: "React Basics",
               description: "Learn about React components and hooks.",
-              videos: [{ title: "React Intro", url: "http://localhost:5000/uploads/videos/test.mp4" }],
-              materials: [{ title: "React Notes", url: "http://localhost:5000/uploads/docs/test.pdf" }],
+              videos: [
+                {
+                  title: "React Intro",
+                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
+                },
+              ],
+              materials: [
+                {
+                  title: "React Notes",
+                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
+                },
+              ],
               quiz: true,
             },
             {
@@ -199,7 +253,7 @@ async function seed() {
     await courseReact.save();
 
     const liveReact = new LiveLecture({
-      courseId: courseReact._id.toString(),
+      courseId: courseReact._id,
       moduleIndex: 0,
       lessonIndex: 1,
       title: "Live Lecture: Building with React",
@@ -209,7 +263,8 @@ async function seed() {
       chat: [],
     });
     await liveReact.save();
-    courseReact.curriculum[0].lessons[1].liveLectureId = liveReact._id.toString();
+
+    courseReact.curriculum[0].lessons[1].liveLectureId = liveReact._id;
     await courseReact.save();
 
     // =============================
@@ -220,11 +275,12 @@ async function seed() {
       fullDescription:
         "Learn Python programming from scratch including syntax, loops, functions, and basic data structures.",
       category: "Programming",
-      image: "http://localhost:5000/uploads/images/python.jpg",
+      image: "https://skill-certification-portal.onrender.com/uploads/images/python.jpg",
       instructor: {
         name: "John Smith",
         bio: "Software Engineer and Python Instructor with 7 years of experience.",
-        avatar: "http://localhost:5000/uploads/images/a_python.png",
+        avatar:
+          "https://skill-certification-portal.onrender.com/uploads/images/a_python.png",
       },
       curriculum: [
         {
@@ -233,9 +289,20 @@ async function seed() {
           lessons: [
             {
               title: "Introduction to Python",
-              description: "Getting started with Python and writing your first script.",
-              videos: [{ title: "Python Intro", url: "http://localhost:5000/uploads/videos/test.mp4" }],
-              materials: [{ title: "Python Basics", url: "http://localhost:5000/uploads/docs/test.pdf" }],
+              description:
+                "Getting started with Python and writing your first script.",
+              videos: [
+                {
+                  title: "Python Intro",
+                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
+                },
+              ],
+              materials: [
+                {
+                  title: "Python Basics",
+                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
+                },
+              ],
               quiz: true,
             },
             {
@@ -250,7 +317,7 @@ async function seed() {
     await coursePython.save();
 
     const livePython = new LiveLecture({
-      courseId: coursePython._id.toString(),
+      courseId: coursePython._id,
       moduleIndex: 0,
       lessonIndex: 1,
       title: "Live Lecture: Python Practice",
@@ -260,22 +327,24 @@ async function seed() {
       chat: [],
     });
     await livePython.save();
-    coursePython.curriculum[0].lessons[1].liveLectureId = livePython._id.toString();
+
+    coursePython.curriculum[0].lessons[1].liveLectureId = livePython._id;
     await coursePython.save();
 
     // =============================
-    // 6️⃣ UI/UX Design Course
+    // 6️⃣ UI/UX Course
     // =============================
     const courseUIUX = new Course({
       title: "UI/UX Design Fundamentals",
       fullDescription:
         "Understand the principles of user experience and design intuitive user interfaces using Figma.",
       category: "Design",
-      image: "http://localhost:5000/uploads/images/uiux.jpg",
+      image: "https://skill-certification-portal.onrender.com/uploads/images/uiux.jpg",
       instructor: {
         name: "Ava Patel",
         bio: "UI/UX Designer with 5 years of experience in web and mobile design.",
-        avatar: "http://localhost:5000/uploads/images/a_uiux.png",
+        avatar:
+          "https://skill-certification-portal.onrender.com/uploads/images/a_uiux.png",
       },
       curriculum: [
         {
@@ -284,9 +353,20 @@ async function seed() {
           lessons: [
             {
               title: "Introduction to UI/UX",
-              description: "Understanding the difference between UI and UX.",
-              videos: [{ title: "UI/UX Intro", url: "http://localhost:5000/uploads/videos/test.mp4" }],
-              materials: [{ title: "UI/UX Notes", url: "http://localhost:5000/uploads/docs/test.pdf" }],
+              description:
+                "Understanding the difference between UI and UX.",
+              videos: [
+                {
+                  title: "UI/UX Intro",
+                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
+                },
+              ],
+              materials: [
+                {
+                  title: "UI/UX Notes",
+                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
+                },
+              ],
               quiz: true,
             },
             {
@@ -301,7 +381,7 @@ async function seed() {
     await courseUIUX.save();
 
     const liveUIUX = new LiveLecture({
-      courseId: courseUIUX._id.toString(),
+      courseId: courseUIUX._id,
       moduleIndex: 0,
       lessonIndex: 1,
       title: "Live Lecture: Figma Workshop",
@@ -311,7 +391,8 @@ async function seed() {
       chat: [],
     });
     await liveUIUX.save();
-    courseUIUX.curriculum[0].lessons[1].liveLectureId = liveUIUX._id.toString();
+
+    courseUIUX.curriculum[0].lessons[1].liveLectureId = liveUIUX._id;
     await courseUIUX.save();
 
     console.log("✅ All 6 courses seeded successfully!");
@@ -320,4 +401,24 @@ async function seed() {
   }
 }
 
-export default seed;
+// ===============================
+// 🚀 MAIN EXECUTION
+// ===============================
+async function main() {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("✅ Connected to MongoDB");
+
+    await seed();
+  } catch (err) {
+    console.error("❌ Connection error:", err);
+  } finally {
+    await mongoose.connection.close();
+    console.log("🔌 MongoDB connection closed");
+  }
+}
+
+main();

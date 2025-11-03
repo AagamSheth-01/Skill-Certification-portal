@@ -14,7 +14,7 @@ export default function CourseLearningPage() {
   const [certificateData, setCertificateData] = useState(null);
   const videoRef = useRef();
 
-  const host = process.env.REACT_APP_API_URL || "http://localhost:5000";
+  const host = process.env.REACT_APP_API_URL || "https://skill-certification-portal.onrender.com";
 
   // Fetch course and progress
   useEffect(() => {
@@ -221,7 +221,7 @@ export default function CourseLearningPage() {
           <div className="mt-4">
             <h2 className="font-semibold text-lg mb-2">Join Live Lecture</h2>
             <a
-              href={`http://localhost:5000/live/${lesson.liveLectureId}`}
+              href={`https://skill-certification-portal.onrender.com/live/${lesson.liveLectureId}`}
               target="_blank"
               rel="noreferrer"
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"

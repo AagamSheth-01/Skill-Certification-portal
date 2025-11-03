@@ -40,13 +40,13 @@ export default function CoursesPage() {
       })
       .catch(err => console.error(err));
 
-    // Fetch user progress
-    // fetch("https://skill-certification-portal.onrender.com/api/progress", {
-    //   headers: { Authorization: `Bearer ${token}` },
-    // })
-    //   .then(res => res.json())
-    //   .then(data => setProgress(data || []))
-    //   .catch(err => console.error(err));
+    //Fetch user progress
+    fetch("https://skill-certification-portal.onrender.com/api/progress", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => setProgress(data || []))
+      .catch(err => console.error(err));
 
   }, []);
 
