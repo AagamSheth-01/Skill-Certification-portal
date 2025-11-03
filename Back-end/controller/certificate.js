@@ -24,112 +24,89 @@ export const createCertificate = async (req, res) => {
     const fileName = `certificate_${userId}_${courseId}.pdf`;
     const filePath = path.join(certificatesDir, fileName);
 
-    // ✅ Path to your logo (ensure the image exists here)
-    const logoPath = path.join(process.cwd(), "assets", "upskill_logo.png");
-
     // Create PDF
-    const doc = new PDFDocument({ size: "A4", margin: 50 });
+    const doc = new PDFDocument({
+      size: "A4",
+      margins: { top: 60, bottom: 50, left: 60, right: 60 },
+    });
     const stream = fs.createWriteStream(filePath);
     doc.pipe(stream);
 
-    // 🎨 Background
-    doc.rect(0, 0, doc.page.width, doc.page.height).fill("#faf3e0");
+    // 🎨 Background & Border
+    doc.rect(20, 20, 555, 800).stroke("#C5A654");
+    doc.rect(30, 30, 535, 780).stroke("#C5A654");
+    doc.fillColor("#FAF9F6");
 
-    // 🟡 Border
-    const borderColor = "#c7a008";
-    doc
-      .lineWidth(10)
-      .strokeColor(borderColor)
-      .rect(20, 20, doc.page.width - 40, doc.page.height - 40)
-      .stroke();
-
-    // ✅ Insert logo after fill reset
+    // 🏷️ Add Logo
+    const logoPath = path.join(process.cwd(), "assets", "upskill_logo.png");
     if (fs.existsSync(logoPath)) {
-      const logoWidth = 120;
-      const logoX = (doc.page.width - logoWidth) / 2;
-      const logoY = 50;
-      doc.image(logoPath, logoX, logoY, { width: logoWidth });
+      doc.image(logoPath, doc.page.width / 2 - 50, 50, { width: 100 });
     }
 
-    // ✅ Watermark (faint)
-    if (fs.existsSync(logoPath)) {
-      const wmWidth = 280;
-      const wmX = (doc.page.width - wmWidth) / 2;
-      const wmY = 280;
-      doc.opacity(0.08).image(logoPath, wmX, wmY, { width: wmWidth }).opacity(1);
-    }
-
-    // Content starts lower to avoid pushing to next page
-    let yStart = 200;
-
-    // 🏅 Title
-    doc
-      .font("Times-Bold")
-      .fontSize(36)
-      .fillColor("#b48c02")
-      .text("Certificate of Completion", 50, yStart, { align: "center" });
-
-    yStart += 70;
-
-    doc
-      .font("Times-Italic")
-      .fontSize(20)
-      .fillColor("#333")
-      .text("This is proudly presented to", 50, yStart, { align: "center" });
-
-    yStart += 40;
-
+    // 🏆 Title
+    doc.moveDown(5);
     doc
       .font("Helvetica-Bold")
       .fontSize(30)
-      .fillColor("#000")
-      .text(user.fullName, 50, yStart, { align: "center", underline: true });
+      .fillColor("#C5A654")
+      .text("Certificate of Completion", { align: "center" });
 
-    yStart += 50;
-
+    // ✍️ Subtitle
+    doc.moveDown(1);
     doc
-      .font("Times-Roman")
-      .fontSize(20)
-      .fillColor("#333")
-      .text("for successfully completing the course", 50, yStart, {
-        align: "center",
-      });
+      .font("Helvetica")
+      .fontSize(18)
+      .fillColor("#333333")
+      .text("This is proudly presented to", { align: "center" });
 
-    yStart += 40;
-
+    // 👤 Recipient Name
+    doc.moveDown(1);
     doc
       .font("Helvetica-Bold")
       .fontSize(26)
-      .fillColor("#1a5276")
-      .text(course.title, 50, yStart, { align: "center" });
+      .fillColor("#0A2E57")
+      .text(user.fullName, { align: "center" });
 
-    yStart += 70;
-
-    // Decorative line
+    // 📘 Course
+    doc.moveDown(1);
     doc
-      .moveTo(100, yStart)
-      .lineTo(doc.page.width - 100, yStart)
-      .strokeColor("#b48c02")
-      .lineWidth(2)
-      .stroke();
+      .font("Helvetica")
+      .fontSize(18)
+      .fillColor("#333333")
+      .text("for successfully completing the course", { align: "center" });
 
-    yStart += 80;
+    doc.moveDown(0.5);
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(22)
+      .fillColor("#0A2E57")
+      .text(course.title, { align: "center" });
 
-    const currentDate = new Date().toLocaleDateString();
+    // 📅 Date & Signature Line
+    const date = new Date().toLocaleDateString();
+    doc.moveDown(5);
+    doc
+      .font("Helvetica")
+      .fontSize(14)
+      .fillColor("#000")
+      .text(`Date: ${date}`, 100, 620);
 
-    doc.font("Helvetica").fontSize(16).fillColor("#000");
-    doc.text(`Date: ${currentDate}`, 80, yStart + 20);
-    doc.text("_________________________", doc.page.width - 270, yStart + 10);
-    doc.text("Authorized Signature", doc.page.width - 250, yStart + 30);
+    doc
+      .moveTo(380, 620)
+      .lineTo(500, 620)
+      .stroke("#444");
+    doc.text("Authorized Signature", 385, 630);
 
-    // Footer
+    // 🪶 Footer
+    doc.moveDown(3);
     doc
       .fontSize(12)
-      .fillColor("#555")
-      .text("UpSkill — Empowering Learning, Building Futures", 0, doc.page.height - 60, {
+      .fillColor("#666")
+      .text("UpSkill — Empowering Learning, Building Futures", {
         align: "center",
       });
 
+    // ✅ Finalize PDF
     doc.end();
 
     stream.on("finish", async () => {
@@ -139,10 +116,9 @@ export const createCertificate = async (req, res) => {
         certificateUrl: `/certificates/${fileName}`,
       });
       await certificate.save();
-      console.log("✅ Certificate saved at:", filePath);
 
       res.status(201).json({
-        message: "Certificate issued successfully",
+        message: "Certificate generated successfully!",
         certificateUrl: certificate.certificateUrl,
       });
     });
@@ -152,7 +128,7 @@ export const createCertificate = async (req, res) => {
       res.status(500).json({ message: "Failed to generate certificate" });
     });
   } catch (err) {
-    console.error(err);
+    console.error("Error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
