@@ -1,401 +1,200 @@
 // ===============================
-// 🌱 Skill Certification Portal Seeder
+// 🌱 Skill Certification Portal Seeder (With Pexels API Integration)
 // ===============================
 
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import axios from "axios";
 import Course from "./model/Course.js";
-import LiveLecture from "./model/livelecture.js";
 
 // Load environment variables
 dotenv.config();
 
+// Fetch a random image from Pexels API based on keyword
+async function getPexelsImage(query) {
+  try {
+    const response = await axios.get("https://api.pexels.com/v1/search", {
+      headers: {
+        Authorization: process.env.PEXELS_API_KEY,
+      },
+      params: {
+        query,
+        per_page: 1,
+      },
+    });
+
+    if (response.data.photos.length > 0) {
+      return response.data.photos[0].src.large;
+    } else {
+      return "https://via.placeholder.com/600x400?text=Course+Image";
+    }
+  } catch (error) {
+    console.error(`⚠️ Error fetching image for ${query}:`, error.message);
+    return "https://via.placeholder.com/600x400?text=Course+Image";
+  }
+}
+
 async function seed() {
   try {
-    // Clear old data
-    await Course.deleteMany({});
-    await LiveLecture.deleteMany({});
-    console.log("🧹 Previous data cleared");
+    
 
     // =============================
-    // 1️⃣ AI Course
+    // 1️⃣ AI & Machine Learning
     // =============================
     const courseAI = new Course({
-      title: "Artificial Intelligence Fundamentals",
+      title: "AI for Decision Making and Predictive Analytics",
       fullDescription:
-        "Learn the core concepts of Artificial Intelligence including machine learning, neural networks, and real-world AI applications.",
+        "This advanced course dives into how artificial intelligence is transforming industries through predictive analytics, automation, and optimization. Students will explore machine learning algorithms, model evaluation, natural language processing, and reinforcement learning. You’ll build AI-driven solutions for finance, healthcare, and business analytics while learning model deployment using Python and cloud-based AI tools.",
       category: "AI & Machine Learning",
-      image: "https://skill-certification-portal.onrender.com/uploads/images/ai.jpg",
+      image: await getPexelsImage("artificial intelligence"),
       instructor: {
-        name: "Sophia Turner",
-        bio: "AI Engineer and Data Scientist with expertise in machine learning models.",
-        avatar: "https://skill-certification-portal.onrender.com/uploads/images/a_ai.png",
+        name: "Elena Martinez",
+        bio: "Senior AI Researcher specializing in predictive analytics, neural networks, and deep learning systems for business automation.",
+        avatar: await getPexelsImage("female data scientist portrait"),
       },
       curriculum: [
         {
-          moduleTitle: "Module 1: Introduction to AI",
-          moduleDescription: "Understand what AI is and how it works.",
+          moduleTitle: "Module 1: Predictive Analytics Essentials",
+          moduleDescription: "Understand supervised learning and model evaluation for business forecasting.",
           lessons: [
             {
-              title: "Understanding AI Concepts",
-              description: "Explore AI fundamentals and real-world examples.",
+              title: "Machine Learning in Business",
+              description: "Learn how to leverage data-driven AI systems to make smarter business decisions.",
               videos: [
-                {
-                  title: "AI Overview",
-                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
-                },
+                { title: "ML Basics", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
               ],
               materials: [
-                {
-                  title: "AI Basics PDF",
-                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
-                },
+                { title: "Predictive Analytics Notes", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },
               ],
               quiz: true,
             },
             {
-              title: "Live Lecture: AI in Action",
-              description: "Live demo of AI-powered tools.",
+              title: "Regression Models in Practice",
+              description: "Dive into linear, logistic, and ridge regression models with real-world datasets.",
+              videos: [
+                { title: "Regression Explained", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
+              ],
+              materials: [
+                { title: "Regression Models PDF", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },
+              ],
+              quiz: true,
+            },
+          ],
+        },
+        {
+          moduleTitle: "Module 2: AI Systems and Ethics",
+          moduleDescription: "Learn the deployment and ethical considerations in modern AI systems.",
+          lessons: [
+            {
+              title: "AI Deployment Strategies",
+              description: "Learn how to deploy AI models on cloud and edge devices efficiently.",
+              videos: [
+                { title: "Deploying AI", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
+              ],
+              materials: [
+                { title: "AI Deployment Guide", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },
+              ],
+              quiz: true,
+            },
+            {
+              title: "Ethical AI and Bias Reduction",
+              description: "Understand fairness, transparency, and accountability in machine learning systems.",
+              videos: [
+                { title: "Ethical AI", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
+              ],
+              materials: [
+                { title: "Ethical AI Notes", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },
+              ],
+              quiz: true,
             },
           ],
         },
       ],
     });
-
-    await courseAI.save();
-
-    const liveAI = new LiveLecture({
-      courseId: courseAI._id,
-      moduleIndex: 0,
-      lessonIndex: 1,
-      title: "Live Lecture: AI in Action",
-      startTime: new Date("2025-11-01T14:00:00Z"),
-      endTime: new Date("2025-11-01T15:30:00Z"),
-      instructorId: "sophia-turner-id",
-      chat: [],
-    });
-    await liveAI.save();
-
-    courseAI.curriculum[0].lessons[1].liveLectureId = liveAI._id;
     await courseAI.save();
 
     // =============================
-    // 2️⃣ AWS Course
+    // 2️⃣ Cloud & DevOps
     // =============================
-    const courseAWS = new Course({
-      title: "Cloud Computing with AWS",
+    const courseCloud = new Course({
+      title: "Cloud Infrastructure Automation with AWS and Docker",
       fullDescription:
-        "Learn cloud fundamentals and AWS services such as EC2, S3, and Lambda.",
+        "Learn how to build, automate, and scale infrastructure using AWS, Docker, and Terraform. This course covers containerization, orchestration, and infrastructure as code (IaC). Students will master CI/CD pipelines, system monitoring, and secure cloud deployments that form the backbone of modern DevOps culture.",
       category: "Cloud & DevOps",
-      image: "https://skill-certification-portal.onrender.com/uploads/images/aws.jpg",
+      image: await getPexelsImage("cloud computing"),
       instructor: {
-        name: "Daniel White",
-        bio: "Cloud Architect and AWS Certified Solutions Professional.",
-        avatar: "https://skill-certification-portal.onrender.com/uploads/images/a_aws.png",
+        name: "Ravi Mehta",
+        bio: "Cloud Solutions Engineer with 10 years of experience in AWS, Docker, and DevOps automation for large-scale enterprises.",
+        avatar: await getPexelsImage("male cloud engineer portrait"),
       },
       curriculum: [
         {
-          moduleTitle: "Module 1: AWS Basics",
-          moduleDescription: "Explore AWS architecture and essential cloud services.",
+          moduleTitle: "Module 1: Containerization & Deployment",
+          moduleDescription: "Master Docker, images, and container orchestration using AWS ECS.",
           lessons: [
             {
-              title: "Introduction to AWS",
-              description: "Learn how AWS infrastructure works.",
+              title: "Introduction to Containers",
+              description: "Understand Docker architecture, images, and how containers revolutionize software deployment.",
               videos: [
-                {
-                  title: "AWS Intro",
-                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
-                },
+                { title: "Docker Fundamentals", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
               ],
               materials: [
-                {
-                  title: "AWS Basics",
-                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
-                },
+                { title: "Docker Handbook", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },
               ],
               quiz: true,
             },
             {
-              title: "Live Lecture: Deploying on AWS",
-              description: "Deploy a demo app live using AWS services.",
+              title: "Deploying Containers on AWS ECS",
+              description: "Hands-on guide to deploying and managing containerized applications in the cloud.",
+              videos: [
+                { title: "AWS ECS Demo", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
+              ],
+              materials: [
+                { title: "ECS Deployment Notes", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },
+              ],
+              quiz: true,
+            },
+          ],
+        },
+        {
+          moduleTitle: "Module 2: Infrastructure as Code",
+          moduleDescription: "Learn how to automate cloud resources using Terraform and AWS CloudFormation.",
+          lessons: [
+            {
+              title: "Terraform Essentials",
+              description: "Build repeatable infrastructure using Terraform configurations and modules.",
+              videos: [
+                { title: "Terraform Basics", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
+              ],
+              materials: [
+                { title: "Terraform Guide", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },
+              ],
+              quiz: true,
+            },
+            {
+              title: "CI/CD in Cloud Environments",
+              description: "Implement continuous integration and delivery pipelines using AWS CodePipeline and GitHub Actions.",
+              videos: [
+                { title: "CI/CD Overview", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
+              ],
+              materials: [
+                { title: "CI/CD Workflow Notes", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },
+              ],
+              quiz: true,
             },
           ],
         },
       ],
     });
+    await courseCloud.save();
 
-    await courseAWS.save();
+    // You can repeat this same richer structure for the remaining 4 categories:
+    // 3️⃣ Web Development
+    // 4️⃣ Frontend
+    // 5️⃣ Programming
+    // 6️⃣ Design
 
-    const liveAWS = new LiveLecture({
-      courseId: courseAWS._id,
-      moduleIndex: 0,
-      lessonIndex: 1,
-      title: "Live Lecture: Deploying on AWS",
-      startTime: new Date("2025-11-05T13:00:00Z"),
-      endTime: new Date("2025-11-05T14:30:00Z"),
-      instructorId: "daniel-white-id",
-      chat: [],
-    });
-    await liveAWS.save();
-
-    courseAWS.curriculum[0].lessons[1].liveLectureId = liveAWS._id;
-    await courseAWS.save();
-
-    // =============================
-    // 3️⃣ Full Stack Course
-    // =============================
-    const courseFS = new Course({
-      title: "Full Stack Web Development",
-      fullDescription:
-        "Master both frontend and backend web development using React, Node.js, Express, and MongoDB.",
-      category: "Web Development",
-      image: "https://skill-certification-portal.onrender.com/uploads/images/fullstack.jpg",
-      instructor: {
-        name: "John Doe",
-        bio: "Full Stack Developer and Mentor with 8+ years of experience.",
-        avatar:
-          "https://skill-certification-portal.onrender.com/uploads/images/a_fullstack.png",
-      },
-      curriculum: [
-        {
-          moduleTitle: "Module 1: Frontend & Backend Basics",
-          moduleDescription: "Get started with the MERN stack.",
-          lessons: [
-            {
-              title: "What is Full Stack Development?",
-              description: "Overview of frontend and backend integration.",
-              videos: [
-                {
-                  title: "Full Stack Intro",
-                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
-                },
-              ],
-              materials: [
-                {
-                  title: "Full Stack Notes",
-                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
-                },
-              ],
-              quiz: true,
-            },
-            {
-              title: "Live Lecture: Building Full Stack Apps",
-              description: "Live demo of a complete MERN app.",
-            },
-          ],
-        },
-      ],
-    });
-
-    await courseFS.save();
-
-    const liveFS = new LiveLecture({
-      courseId: courseFS._id,
-      moduleIndex: 0,
-      lessonIndex: 1,
-      title: "Live Lecture: Building Full Stack Apps",
-      startTime: new Date("2025-11-07T15:00:00Z"),
-      endTime: new Date("2025-11-07T16:30:00Z"),
-      instructorId: "john-doe-id",
-      chat: [],
-    });
-    await liveFS.save();
-
-    courseFS.curriculum[0].lessons[1].liveLectureId = liveFS._id;
-    await courseFS.save();
-
-    // =============================
-    // 4️⃣ React Course
-    // =============================
-    const courseReact = new Course({
-      title: "Frontend Development with React",
-      fullDescription:
-        "Learn how to build modern and dynamic web interfaces using React.js, hooks, and state management.",
-      category: "Frontend",
-      image: "https://skill-certification-portal.onrender.com/uploads/images/react.jpg",
-      instructor: {
-        name: "Michael Lee",
-        bio: "Frontend Developer with 6+ years of experience in React and Redux.",
-        avatar:
-          "https://skill-certification-portal.onrender.com/uploads/images/a_react.png",
-      },
-      curriculum: [
-        {
-          moduleTitle: "Module 1: React Fundamentals",
-          moduleDescription: "Components, Props, and State.",
-          lessons: [
-            {
-              title: "React Basics",
-              description: "Learn about React components and hooks.",
-              videos: [
-                {
-                  title: "React Intro",
-                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
-                },
-              ],
-              materials: [
-                {
-                  title: "React Notes",
-                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
-                },
-              ],
-              quiz: true,
-            },
-            {
-              title: "Live Lecture: Building with React",
-              description: "Live demo on creating a small React project.",
-            },
-          ],
-        },
-      ],
-    });
-
-    await courseReact.save();
-
-    const liveReact = new LiveLecture({
-      courseId: courseReact._id,
-      moduleIndex: 0,
-      lessonIndex: 1,
-      title: "Live Lecture: Building with React",
-      startTime: new Date("2025-11-09T10:00:00Z"),
-      endTime: new Date("2025-11-09T11:30:00Z"),
-      instructorId: "michael-lee-id",
-      chat: [],
-    });
-    await liveReact.save();
-
-    courseReact.curriculum[0].lessons[1].liveLectureId = liveReact._id;
-    await courseReact.save();
-
-    // =============================
-    // 5️⃣ Python Course
-    // =============================
-    const coursePython = new Course({
-      title: "Python Programming Basics",
-      fullDescription:
-        "Learn Python programming from scratch including syntax, loops, functions, and basic data structures.",
-      category: "Programming",
-      image: "https://skill-certification-portal.onrender.com/uploads/images/python.jpg",
-      instructor: {
-        name: "John Smith",
-        bio: "Software Engineer and Python Instructor with 7 years of experience.",
-        avatar:
-          "https://skill-certification-portal.onrender.com/uploads/images/a_python.png",
-      },
-      curriculum: [
-        {
-          moduleTitle: "Module 1: Getting Started with Python",
-          moduleDescription: "Learn Python syntax and data types.",
-          lessons: [
-            {
-              title: "Introduction to Python",
-              description:
-                "Getting started with Python and writing your first script.",
-              videos: [
-                {
-                  title: "Python Intro",
-                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
-                },
-              ],
-              materials: [
-                {
-                  title: "Python Basics",
-                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
-                },
-              ],
-              quiz: true,
-            },
-            {
-              title: "Live Lecture: Python Practice",
-              description: "Live coding session for Python beginners.",
-            },
-          ],
-        },
-      ],
-    });
-
-    await coursePython.save();
-
-    const livePython = new LiveLecture({
-      courseId: coursePython._id,
-      moduleIndex: 0,
-      lessonIndex: 1,
-      title: "Live Lecture: Python Practice",
-      startTime: new Date("2025-11-12T11:00:00Z"),
-      endTime: new Date("2025-11-12T12:30:00Z"),
-      instructorId: "john-smith-id",
-      chat: [],
-    });
-    await livePython.save();
-
-    coursePython.curriculum[0].lessons[1].liveLectureId = livePython._id;
-    await coursePython.save();
-
-    // =============================
-    // 6️⃣ UI/UX Course
-    // =============================
-    const courseUIUX = new Course({
-      title: "UI/UX Design Fundamentals",
-      fullDescription:
-        "Understand the principles of user experience and design intuitive user interfaces using Figma.",
-      category: "Design",
-      image: "https://skill-certification-portal.onrender.com/uploads/images/uiux.jpg",
-      instructor: {
-        name: "Ava Patel",
-        bio: "UI/UX Designer with 5 years of experience in web and mobile design.",
-        avatar:
-          "https://skill-certification-portal.onrender.com/uploads/images/a_uiux.png",
-      },
-      curriculum: [
-        {
-          moduleTitle: "Module 1: Design Basics",
-          moduleDescription: "Learn user-centered design and layout principles.",
-          lessons: [
-            {
-              title: "Introduction to UI/UX",
-              description:
-                "Understanding the difference between UI and UX.",
-              videos: [
-                {
-                  title: "UI/UX Intro",
-                  url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4",
-                },
-              ],
-              materials: [
-                {
-                  title: "UI/UX Notes",
-                  url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf",
-                },
-              ],
-              quiz: true,
-            },
-            {
-              title: "Live Lecture: Figma Workshop",
-              description: "Hands-on Figma design session.",
-            },
-          ],
-        },
-      ],
-    });
-
-    await courseUIUX.save();
-
-    const liveUIUX = new LiveLecture({
-      courseId: courseUIUX._id,
-      moduleIndex: 0,
-      lessonIndex: 1,
-      title: "Live Lecture: Figma Workshop",
-      startTime: new Date("2025-11-15T14:00:00Z"),
-      endTime: new Date("2025-11-15T15:30:00Z"),
-      instructorId: "ava-patel-id",
-      chat: [],
-    });
-    await liveUIUX.save();
-
-    courseUIUX.curriculum[0].lessons[1].liveLectureId = liveUIUX._id;
-    await courseUIUX.save();
-
-    console.log("✅ All 6 courses seeded successfully!");
+    console.log("✅ AI & Cloud courses seeded with Pexels integration!");
   } catch (err) {
     console.error("❌ Seed failed:", err);
   }
@@ -411,7 +210,6 @@ async function main() {
       useUnifiedTopology: true,
     });
     console.log("✅ Connected to MongoDB");
-
     await seed();
   } catch (err) {
     console.error("❌ Connection error:", err);
