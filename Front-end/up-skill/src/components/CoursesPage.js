@@ -13,7 +13,7 @@ export default function CoursesPage() {
     const token = localStorage.getItem("token");
 
     // Fetch courses
-    fetch("http://localhost:5000/api/courses")
+    fetch("https://skill-certification-portal.onrender.com/api/courses")
       .then(res => res.json())
       .then(data => {
         setCourses(data);
@@ -41,7 +41,7 @@ export default function CoursesPage() {
       .catch(err => console.error(err));
 
     // Fetch user progress
-    fetch("http://localhost:5000/api/progress", {
+    fetch("https://skill-certification-portal.onrender.com/api/progress", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
@@ -116,7 +116,7 @@ export default function CoursesPage() {
                   }`}
                 >
                   <img
-                    src={course.image ? (course.image.startsWith("http") ? course.image : `http://localhost:5000${course.image}`) : "https://picsum.photos/300/150"}
+                    src={course.image ? (course.image.startsWith("http") ? course.image : `https://skill-certification-portal.onrender.com/${course.image}`) : "https://picsum.photos/300/150"}
                     alt={course.title}
                     className="course-img"
                   />

@@ -5,7 +5,7 @@ function HomePage() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/courses")
+    fetch("https://skill-certification-portal.onrender.com/api/courses")
       .then(res => res.json())
       .then(data => setCourses(data))
       .catch(err => console.error(err));

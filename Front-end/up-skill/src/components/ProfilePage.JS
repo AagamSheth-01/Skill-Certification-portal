@@ -13,7 +13,7 @@ export default function ProfilePage() {
     const token = localStorage.getItem("token");
     if (!token) navigate("/login");
 
-    fetch("http://localhost:5000/api/auth/me", {
+    fetch("https://skill-certification-portal.onrender.com/api/auth/me", {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
