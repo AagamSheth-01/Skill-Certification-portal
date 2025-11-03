@@ -1,8 +1,10 @@
 import './comp.css';
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function HomePage() {
   const [courses, setCourses] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("https://skill-certification-portal.onrender.com/api/courses")
@@ -66,7 +68,7 @@ function HomePage() {
                   <h4 className="text-2xl font-semibold mb-3">{course.title}</h4>
                   <p className="text-gray-600 mb-5 text-lg">{course.description}</p>
                 </div>
-                <button className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition mt-auto font-semibold shadow-md hover:shadow-lg">
+                <button  onClick={() => navigate(`/courses/${course._id}`)}className="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition mt-auto font-semibold shadow-md hover:shadow-lg">
                   Enroll Now
                 </button>
               </div>
