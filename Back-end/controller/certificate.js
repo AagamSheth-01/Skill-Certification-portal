@@ -24,7 +24,7 @@ export const createCertificate = async (req, res) => {
     const fileName = `certificate_${userId}_${courseId}.pdf`;
     const filePath = path.join(certificatesDir, fileName);
 
-    // Logo path (place logo file in /assets or /public)
+    // ✅ Path to your logo (ensure the image exists here)
     const logoPath = path.join(process.cwd(), "assets", "upskill_logo.png");
 
     // Create PDF
@@ -32,10 +32,10 @@ export const createCertificate = async (req, res) => {
     const stream = fs.createWriteStream(filePath);
     doc.pipe(stream);
 
-    // 🎨 Background and Border
+    // 🎨 Background
     doc.rect(0, 0, doc.page.width, doc.page.height).fill("#faf3e0");
 
-    // Gold border
+    // 🟡 Border
     const borderColor = "#c7a008";
     doc
       .lineWidth(10)
@@ -43,96 +43,95 @@ export const createCertificate = async (req, res) => {
       .rect(20, 20, doc.page.width - 40, doc.page.height - 40)
       .stroke();
 
-    // ✅ Add UpSkill logo at top
+    // ✅ Insert logo after fill reset
     if (fs.existsSync(logoPath)) {
-      const logoWidth = 140;
-      const centerX = (doc.page.width - logoWidth) / 2;
-      doc.image(logoPath, centerX, 40, { width: logoWidth });
+      const logoWidth = 120;
+      const logoX = (doc.page.width - logoWidth) / 2;
+      const logoY = 50;
+      doc.image(logoPath, logoX, logoY, { width: logoWidth });
     }
 
-    // ✅ Optional watermark (faint logo in center)
+    // ✅ Watermark (faint)
     if (fs.existsSync(logoPath)) {
-      const wmWidth = 300;
+      const wmWidth = 280;
       const wmX = (doc.page.width - wmWidth) / 2;
-      const wmY = doc.page.height / 2 - 100;
+      const wmY = 280;
       doc.opacity(0.08).image(logoPath, wmX, wmY, { width: wmWidth }).opacity(1);
     }
 
-    doc.moveDown(5);
+    // Content starts lower to avoid pushing to next page
+    let yStart = 200;
 
     // 🏅 Title
     doc
       .font("Times-Bold")
       .fontSize(36)
       .fillColor("#b48c02")
-      .text("Certificate of Completion", { align: "center" });
+      .text("Certificate of Completion", 50, yStart, { align: "center" });
 
-    doc.moveDown(1.5);
+    yStart += 70;
 
-    // Subtitle
     doc
       .font("Times-Italic")
       .fontSize(20)
       .fillColor("#333")
-      .text("This is proudly presented to", { align: "center" });
+      .text("This is proudly presented to", 50, yStart, { align: "center" });
 
-    doc.moveDown(1);
+    yStart += 40;
 
-    // Recipient Name
     doc
       .font("Helvetica-Bold")
-      .fontSize(32)
-      .fillColor("#000000")
-      .text(user.fullName, { align: "center", underline: true });
+      .fontSize(30)
+      .fillColor("#000")
+      .text(user.fullName, 50, yStart, { align: "center", underline: true });
 
-    doc.moveDown(1);
+    yStart += 50;
 
-    // Achievement text
     doc
       .font("Times-Roman")
       .fontSize(20)
       .fillColor("#333")
-      .text("for successfully completing the course", { align: "center" });
+      .text("for successfully completing the course", 50, yStart, {
+        align: "center",
+      });
 
-    doc.moveDown(0.5);
+    yStart += 40;
 
-    // Course Title
     doc
       .font("Helvetica-Bold")
       .fontSize(26)
       .fillColor("#1a5276")
-      .text(course.title, { align: "center" });
+      .text(course.title, 50, yStart, { align: "center" });
 
-    doc.moveDown(2);
+    yStart += 70;
 
-    // Decorative separator
+    // Decorative line
     doc
-      .moveTo(100, doc.y)
-      .lineTo(doc.page.width - 100, doc.y)
+      .moveTo(100, yStart)
+      .lineTo(doc.page.width - 100, yStart)
       .strokeColor("#b48c02")
       .lineWidth(2)
       .stroke();
 
-    doc.moveDown(2);
+    yStart += 80;
 
-    // Date & Signature
     const currentDate = new Date().toLocaleDateString();
-    doc.font("Helvetica").fontSize(16).fillColor("#000");
-    doc.text(`Date: ${currentDate}`, 70, doc.page.height - 150);
-    doc.text("_________________________", doc.page.width - 270, doc.page.height - 160);
-    doc.text("Authorized Signature", doc.page.width - 250, doc.page.height - 140);
 
-    // Footer Branding
+    doc.font("Helvetica").fontSize(16).fillColor("#000");
+    doc.text(`Date: ${currentDate}`, 80, yStart + 20);
+    doc.text("_________________________", doc.page.width - 270, yStart + 10);
+    doc.text("Authorized Signature", doc.page.width - 250, yStart + 30);
+
+    // Footer
     doc
       .fontSize(12)
       .fillColor("#555")
-      .text("UpSkill — Empowering Learning, Building Futures", 0, doc.page.height - 50, {
+      .text("UpSkill — Empowering Learning, Building Futures", 0, doc.page.height - 60, {
         align: "center",
       });
 
     doc.end();
 
-    // Save after stream finishes
     stream.on("finish", async () => {
       const certificate = new Certificate({
         user: userId,
