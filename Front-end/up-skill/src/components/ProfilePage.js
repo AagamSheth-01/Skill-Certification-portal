@@ -56,7 +56,7 @@ export default function ProfilePage() {
         {/* Profile Info */}
         <div className="flex flex-col items-center text-center md:text-left w-full md:w-1/3 gap-4">
           <img
-            src={user.profilePic || "/default-avatar.png"}
+            src={user.profilePic || "./default_avatar.png"}
             alt="Profile"
             className="w-32 h-32 rounded-full border-2 border-gray-300 object-cover"
           />
