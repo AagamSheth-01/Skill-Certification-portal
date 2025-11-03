@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 
 import Navbar from "./components/navbar";
 import HomePage from "./components/HomePage";
@@ -13,6 +13,7 @@ import RegisterPage from "./components/RegisterPage";
 import ProfilePage from "./components/ProfilePage";
 import CourseDetailPage from "./components/CourseDetailPage";
 import CourseLearningPage from "./components/CourseLearningPage";
+import PageWrapper from "./components/PageWrapper";
 function AnimatedRoutes() {
   const location = useLocation();
 
@@ -33,20 +34,6 @@ function AnimatedRoutes() {
 
       </Routes>
     </AnimatePresence>
-  );
-}
-
-// Wrapper component to animate page transitions
-function PageWrapper({ children }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.4 }}
-    >
-      {children}
-    </motion.div>
   );
 }
 
