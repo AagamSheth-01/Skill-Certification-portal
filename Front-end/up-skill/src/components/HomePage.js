@@ -23,9 +23,7 @@ function HomePage() {
           <p className="text-gray-700 text-lg md:text-xl mb-8 max-w-2xl mx-auto">
             Join thousands of learners to gain professional skills and globally recognized certifications.
           </p>
-          <button className="bg-blue-600 text-white px-8 py-4 rounded-xl hover:bg-blue-700 transition duration-300 shadow-lg hover:shadow-xl text-lg font-semibold">
-            Login
-          </button>
+          
         </div>
         <div className="absolute top-0 left-0 w-full h-full opacity-20 bg-[url('/hero-bg.png')] bg-cover bg-center"></div>
       </section>

@@ -11,6 +11,7 @@ export default function CourseLearningPage() {
   const [currentLesson, setCurrentLesson] = useState({ module: 0, lesson: 0 });
   const [certificateVisible, setCertificateVisible] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [certificateData, setCertificateData] = useState(null);
   const videoRef = useRef();
 
   const host = process.env.REACT_APP_API_URL || "http://localhost:5000";
@@ -250,7 +251,7 @@ export default function CourseLearningPage() {
                   onClick={async () => {
                     setGenerating(true);
                     try {
-                      const res = await fetch(`${host}/api/certificate/${id}`, {
+                      const res = await fetch(`${host}/api/certificates/${id}`, {
                         method: "POST",
                         headers: {
                           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -258,12 +259,15 @@ export default function CourseLearningPage() {
                       });
                       const data = await res.json();
 
+                      // Prepend host to certificate URL
+                      const fullUrl = `${host}${data.certificateUrl}`;
+
                       // Open PDF in new tab
-                      window.open(data.certificateUrl, "_blank");
+                      window.open(fullUrl, "_blank");
 
                       // Trigger download
                       const link = document.createElement("a");
-                      link.href = data.certificateUrl;
+                      link.href = fullUrl;
                       link.download = `Certificate_${course.title}.pdf`;
                       document.body.appendChild(link);
                       link.click();
