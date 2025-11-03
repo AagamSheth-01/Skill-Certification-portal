@@ -228,7 +228,7 @@ export default function CourseLearningPage() {
             >
               Join Live Session
             </a>
-            <LiveLectureSection liveLectureId={lesson.liveLectureId} />
+           <LiveLectureSection courseId={id} />
           </div>
         )}
       </main>

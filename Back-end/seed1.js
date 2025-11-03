@@ -10,18 +10,30 @@ async function seed() {
     console.log("🧹 Previous data cleared");
 
     // =============================
+<<<<<<< HEAD
     // 1️⃣ AI Course
+=======
+    // ⿡ AI Course
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
     // =============================
     const courseAI = new Course({
       title: "Artificial Intelligence Fundamentals",
       fullDescription:
         "Learn the core concepts of Artificial Intelligence including machine learning, neural networks, and real-world AI applications.",
       category: "AI & Machine Learning",
+<<<<<<< HEAD
       image: "http://localhost:5000/uploads/images/ai.jpg",
       instructor: {
         name: "Sophia Turner",
         bio: "AI Engineer and Data Scientist with expertise in machine learning models.",
         avatar: "http://localhost:5000/uploads/images/a_ai.png",
+=======
+      image: "https://picsum.photos/300/150?random=101",
+      instructor: {
+        name: "Sophia Turner",
+        bio: "AI Engineer and Data Scientist with expertise in machine learning models.",
+        avatar: "https://picsum.photos/100/100?random=201",
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
       },
       curriculum: [
         {
@@ -61,17 +73,29 @@ async function seed() {
     await courseAI.save();
 
     // =============================
+<<<<<<< HEAD
     // 2️⃣ AWS Course
+=======
+    // ⿢ AWS Course
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
     // =============================
     const courseAWS = new Course({
       title: "Cloud Computing with AWS",
       fullDescription: "Learn cloud fundamentals and AWS services such as EC2, S3, and Lambda.",
       category: "Cloud & DevOps",
+<<<<<<< HEAD
       image: "http://localhost:5000/uploads/images/aws.jpg",
       instructor: {
         name: "Daniel White",
         bio: "Cloud Architect and AWS Certified Solutions Professional.",
         avatar: "http://localhost:5000/uploads/images/a_aws.png",
+=======
+      image: "https://picsum.photos/300/150?random=102",
+      instructor: {
+        name: "Daniel White",
+        bio: "Cloud Architect and AWS Certified Solutions Professional.",
+        avatar: "https://picsum.photos/100/100?random=202",
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
       },
       curriculum: [
         {
@@ -111,18 +135,30 @@ async function seed() {
     await courseAWS.save();
 
     // =============================
+<<<<<<< HEAD
     // 3️⃣ Full Stack Course
+=======
+    // ⿣ Full Stack Course
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
     // =============================
     const courseFS = new Course({
       title: "Full Stack Web Development",
       fullDescription:
         "Master both frontend and backend web development using React, Node.js, Express, and MongoDB.",
       category: "Web Development",
+<<<<<<< HEAD
       image: "http://localhost:5000/uploads/images/fullstack.jpg",
       instructor: {
         name: "John Doe",
         bio: "Full Stack Developer and Mentor with 8+ years of experience.",
         avatar: "http://localhost:5000/uploads/images/a_fullstack.png",
+=======
+      image: "https://picsum.photos/300/150?random=103",
+      instructor: {
+        name: "John Doe",
+        bio: "Full Stack Developer and Mentor with 8+ years of experience.",
+        avatar: "https://picsum.photos/100/100?random=203",
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
       },
       curriculum: [
         {
@@ -162,18 +198,30 @@ async function seed() {
     await courseFS.save();
 
     // =============================
+<<<<<<< HEAD
     // 4️⃣ React Course
+=======
+    // ⿤ React Course
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
     // =============================
     const courseReact = new Course({
       title: "Frontend Development with React",
       fullDescription:
         "Learn how to build modern and dynamic web interfaces using React.js, hooks, and state management.",
       category: "Frontend",
+<<<<<<< HEAD
       image: "http://localhost:5000/uploads/images/react.jpg",
       instructor: {
         name: "Michael Lee",
         bio: "Frontend Developer with 6+ years of experience in React and Redux.",
         avatar: "http://localhost:5000/uploads/images/a_react.png",
+=======
+      image: "https://picsum.photos/300/150?random=104",
+      instructor: {
+        name: "Michael Lee",
+        bio: "Frontend Developer with 6+ years of experience in React and Redux.",
+        avatar: "https://picsum.photos/100/100?random=204",
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
       },
       curriculum: [
         {
@@ -213,18 +261,30 @@ async function seed() {
     await courseReact.save();
 
     // =============================
+<<<<<<< HEAD
     // 5️⃣ Python Course
+=======
+    // ⿥ Python Course
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
     // =============================
     const coursePython = new Course({
       title: "Python Programming Basics",
       fullDescription:
         "Learn Python programming from scratch including syntax, loops, functions, and basic data structures.",
       category: "Programming",
+<<<<<<< HEAD
       image: "http://localhost:5000/uploads/images/python.jpg",
       instructor: {
         name: "John Smith",
         bio: "Software Engineer and Python Instructor with 7 years of experience.",
         avatar: "http://localhost:5000/uploads/images/a_python.png",
+=======
+      image: "https://picsum.photos/300/150?random=105",
+      instructor: {
+        name: "John Smith",
+        bio: "Software Engineer and Python Instructor with 7 years of experience.",
+        avatar: "https://picsum.photos/100/100?random=205",
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
       },
       curriculum: [
         {
@@ -264,18 +324,30 @@ async function seed() {
     await coursePython.save();
 
     // =============================
+<<<<<<< HEAD
     // 6️⃣ UI/UX Design Course
+=======
+    // ⿦ UI/UX Design Course
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
     // =============================
     const courseUIUX = new Course({
       title: "UI/UX Design Fundamentals",
       fullDescription:
         "Understand the principles of user experience and design intuitive user interfaces using Figma.",
       category: "Design",
+<<<<<<< HEAD
       image: "http://localhost:5000/uploads/images/uiux.jpg",
       instructor: {
         name: "Ava Patel",
         bio: "UI/UX Designer with 5 years of experience in web and mobile design.",
         avatar: "http://localhost:5000/uploads/images/a_uiux.png",
+=======
+      image: "https://picsum.photos/300/150?random=106",
+      instructor: {
+        name: "Ava Patel",
+        bio: "UI/UX Designer with 5 years of experience in web and mobile design.",
+        avatar: "https://picsum.photos/100/100?random=206",
+>>>>>>> 255aac99e23754eb0d106d195229a67f07b1014c
       },
       curriculum: [
         {
@@ -320,4 +392,4 @@ async function seed() {
   }
 }
 
-export default seed;
+export default seed;
