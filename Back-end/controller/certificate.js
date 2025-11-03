@@ -157,3 +157,20 @@ export const createCertificate = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+export const getUserCertificates = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Fetch all certificates for this user and populate course title
+    const certificates = await Certificate.find({ user: userId })
+      .populate("course", "title") // only get course title
+      .sort({ dateIssued: -1 }); // latest first
+
+    res.status(200).json(certificates);
+  } catch (err) {
+    console.error("Error fetching certificates:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
