@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import defaultAvatar from "./default_avatar.png";
+
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -56,7 +58,7 @@ export default function ProfilePage() {
         {/* Profile Info */}
         <div className="flex flex-col items-center text-center md:text-left w-full md:w-1/3 gap-4">
           <img
-            src= "./default_avatar.png"
+            src= {defaultAvatar}
             alt="Profile"
             className="w-32 h-32 rounded-full border-2 border-gray-300 object-cover"
           />
