@@ -14,7 +14,9 @@ export default function CourseLearningPage() {
   const [certificateData, setCertificateData] = useState(null);
   const videoRef = useRef();
 
-  const host = process.env.REACT_APP_API_URL || "https://skill-certification-portal.onrender.com";
+  const host =
+    process.env.REACT_APP_API_URL ||
+    "https://skill-certification-portal.onrender.com";
 
   // Fetch course and progress
   useEffect(() => {
@@ -88,7 +90,9 @@ export default function CourseLearningPage() {
 
   if (!course || !course.curriculum || course.curriculum.length === 0)
     return (
-      <p className="text-center mt-20 text-xl font-semibold">Loading course...</p>
+      <p className="text-center mt-20 text-xl font-semibold">
+        Loading course...
+      </p>
     );
 
   const allLessons = course.curriculum.flatMap((m) => m.lessons ?? []);
@@ -130,7 +134,9 @@ export default function CourseLearningPage() {
                       lIndex > 0
                         ? `${mIndex}-${lIndex - 1}`
                         : mIndex > 0
-                        ? `${mIndex - 1}-${course.curriculum[mIndex - 1].lessons.length - 1}`
+                        ? `${mIndex - 1}-${
+                            course.curriculum[mIndex - 1].lessons.length - 1
+                          }`
                         : null;
 
                     const canAccess =
@@ -146,11 +152,15 @@ export default function CourseLearningPage() {
                           setCurrentLesson({ module: mIndex, lesson: lIndex })
                         }
                         className={`w-full text-left p-2 mb-1 rounded flex justify-between items-center ${
-                          isCurrent ? "bg-blue-100 font-semibold" : "hover:bg-gray-100"
+                          isCurrent
+                            ? "bg-blue-100 font-semibold"
+                            : "hover:bg-gray-100"
                         } ${!canAccess ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
                         <span>{lessonItem.title}</span>
-                        {completed && <span className="text-green-600 font-bold">✓</span>}
+                        {completed && (
+                          <span className="text-green-600 font-bold">✓</span>
+                        )}
                       </button>
                     );
                   })}
@@ -169,7 +179,9 @@ export default function CourseLearningPage() {
               style={{ width: `${completionPercentage}%` }}
             />
           </div>
-          <p className="text-right text-gray-600 mt-1">{completionPercentage}% completed</p>
+          <p className="text-right text-gray-600 mt-1">
+            {completionPercentage}% completed
+          </p>
         </div>
       </aside>
 
@@ -193,7 +205,8 @@ export default function CourseLearningPage() {
           </div>
         ) : (
           <div className="mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded">
-            ⚠️ No video is available for this lesson. Please proceed with materials or wait for the next scheduled video.
+            ⚠️ No video is available for this lesson. Please proceed with
+            materials or wait for the next scheduled video.
           </div>
         )}
 
@@ -228,7 +241,7 @@ export default function CourseLearningPage() {
             >
               Join Live Session
             </a>
-           <LiveLectureSection courseId={id} />
+            <LiveLectureSection courseId={id} />
           </div>
         )}
       </main>
@@ -246,34 +259,33 @@ export default function CourseLearningPage() {
             >
               <motion.div className="bg-white p-8 rounded-lg max-w-lg text-center shadow-lg">
                 <h2 className="text-2xl font-bold mb-4">🎉 Congratulations!</h2>
-                <p className="mb-4">You have completed the course: {course.title}</p>
+                <p className="mb-4">
+                  You have completed the course: {course.title}
+                </p>
                 <button
                   onClick={async () => {
                     setGenerating(true);
                     try {
-                      const res = await fetch(`${host}/api/certificates/${id}`, {
-                        method: "POST",
-                        headers: {
-                          Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        },
-                      });
+                      const res = await fetch(
+                        `${host}/api/certificates/${id}`,
+                        {
+                          method: "POST",
+                          headers: {
+                            Authorization: `Bearer ${localStorage.getItem(
+                              "token"
+                            )}`,
+                          },
+                        }
+                      );
                       const data = await res.json();
 
-                      // Prepend host to certificate URL
-                      const fullUrl = `${host}${data.certificateUrl}`;
-
-                      // Open PDF in new tab
-                      window.open(fullUrl, "_blank");
-
-                      // Trigger download
-                      const link = document.createElement("a");
-                      link.href = fullUrl;
-                      link.download = `Certificate_${course.title}.pdf`;
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-
-                      setCertificateVisible(false);
+                      if (res.ok && data.certificateUrl) {
+                        const fullUrl = `${host}${data.certificateUrl}`;
+                        window.open(fullUrl, "_blank"); // ✅ only once
+                        setCertificateVisible(false);
+                      } else {
+                        console.error("Certificate not generated:", data);
+                      }
                     } catch (err) {
                       console.error("Error generating certificate:", err);
                     } finally {
