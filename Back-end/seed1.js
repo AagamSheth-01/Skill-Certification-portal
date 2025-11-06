@@ -23,6 +23,8 @@ async function getPexelsImage(query) {
       },
     });
 
+    
+
     if (response.data.photos.length > 0) {
       return response.data.photos[0].src.large;
     } else {
@@ -36,7 +38,9 @@ async function getPexelsImage(query) {
 
 async function seed() {
   try {
-    
+    await Course.deleteMany({});
+      //  await LiveLecture.deleteMany({});
+        console.log("🧹 Previous data cleared");
 
     // =============================
     // 1️⃣ AI & Machine Learning
@@ -61,7 +65,7 @@ async function seed() {
               title: "Machine Learning in Business",
               description: "Learn how to leverage data-driven AI systems to make smarter business decisions.",
               videos: [
-                { title: "ML Basics", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
+                { title: "ML Basics", url: "https://youtu.be/FE-hM1kRK4Y?si=nWKk0vnUuk8Suk7E" },
               ],
               materials: [
                 { title: "Predictive Analytics Notes", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },
@@ -72,7 +76,7 @@ async function seed() {
               title: "Regression Models in Practice",
               description: "Dive into linear, logistic, and ridge regression models with real-world datasets.",
               videos: [
-                { title: "Regression Explained", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
+                { title: "Regression Explained", url: "https://youtu.be/FE-hM1kRK4Y?si=nWKk0vnUuk8Suk7E" },
               ],
               materials: [
                 { title: "Regression Models PDF", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },
@@ -89,7 +93,7 @@ async function seed() {
               title: "AI Deployment Strategies",
               description: "Learn how to deploy AI models on cloud and edge devices efficiently.",
               videos: [
-                { title: "Deploying AI", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
+                { title: "Deploying AI", url: "https://youtu.be/FE-hM1kRK4Y?si=nWKk0vnUuk8Suk7E" },
               ],
               materials: [
                 { title: "AI Deployment Guide", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },
@@ -100,7 +104,7 @@ async function seed() {
               title: "Ethical AI and Bias Reduction",
               description: "Understand fairness, transparency, and accountability in machine learning systems.",
               videos: [
-                { title: "Ethical AI", url: "https://skill-certification-portal.onrender.com/uploads/videos/test.mp4" },
+                { title: "Ethical AI", url: "https://youtu.be/FE-hM1kRK4Y?si=nWKk0vnUuk8Suk7E" },
               ],
               materials: [
                 { title: "Ethical AI Notes", url: "https://skill-certification-portal.onrender.com/uploads/docs/test.pdf" },

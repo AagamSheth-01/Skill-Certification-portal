@@ -8,13 +8,14 @@ export default function ProfilePage() {
   const [twoFactor, setTwoFactor] = useState(false);
   const [emailNotify, setEmailNotify] = useState(true);
   const [privacy, setPrivacy] = useState({ showEmail: true, showPhone: false });
-  const API_URL=process.env.REACT_APP_BACK_END_API;
+  const API_URL=process.env.REACT_APP_BACK_END_URL;
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) navigate("/login");
+   
 
     fetch(`${API_URL}/api/auth/me`, {
       headers: { Authorization: `Bearer ${token}` },

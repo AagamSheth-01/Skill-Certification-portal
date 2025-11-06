@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Confetti from "react-confetti";
 import LiveLectureSection from "./Livelecture";
+import FinalTestPage from "./FinalTestPage"; // ✅ Import test page
 
 export default function CourseLearningPage() {
   const { id } = useParams();
@@ -11,37 +12,56 @@ export default function CourseLearningPage() {
   const [currentLesson, setCurrentLesson] = useState({ module: 0, lesson: 0 });
   const [certificateVisible, setCertificateVisible] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [certificateData, setCertificateData] = useState(null);
+  const [showTest, setShowTest] = useState(false); // ✅ new state for test visibility
+  const [testPassed, setTestPassed] = useState(false); // ✅ track test result
   const videoRef = useRef();
 
-  const host =
-    process.env.REACT_APP_API_URL;
-    
+  const host = process.env.REACT_APP_BACK_END_URL;
 
-  // Fetch course and progress
+  // Fetch course + progress
   useEffect(() => {
     fetch(`${host}/api/courses/${id}`)
       .then((res) => res.json())
-      .then((data) => setCourse(data));
+      .then((data) => setCourse(data))
+      .catch((err) => console.error("Error fetching course:", err));
 
     fetch(`${host}/api/progress/${id}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     })
       .then((res) => res.json())
-      .then((data) => setProgress(data.completedLessons || []));
-  }, [id]);
+      .then((data) => setProgress(data.completedLessons || []))
+      .catch((err) => console.error("Error fetching progress:", err));
+  }, [id, host]);
 
   const currentModule = course?.curriculum[currentLesson.module];
   const lesson = currentModule?.lessons[currentLesson.lesson];
   const currentVideo = lesson?.videos?.[0] || null;
 
+  // Check if YouTube
+  const isYouTube = (url) =>
+    url?.includes("youtube.com") || url?.includes("youtu.be");
+
+  // Convert YouTube URL to embeddable
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return "";
+    if (url.includes("youtube.com/watch?v="))
+      return url.replace("watch?v=", "embed/");
+    if (url.includes("youtu.be/"))
+      return url.replace("youtu.be/", "www.youtube.com/embed/");
+    return url;
+  };
+
+  // Autoplay for normal videos
   useEffect(() => {
-    if (videoRef.current && currentVideo) {
+    if (videoRef.current && currentVideo && !isYouTube(currentVideo.url)) {
       videoRef.current.load();
-      videoRef.current.play().catch(() => {});
+      videoRef.current
+        .play()
+        .catch((err) => console.warn("Autoplay blocked:", err.message));
     }
   }, [currentVideo]);
 
+  // Find next lesson with video
   const findNextLessonWithVideo = (moduleIndex, lessonIndex) => {
     for (let m = moduleIndex; m < course.curriculum.length; m++) {
       const lessons = course.curriculum[m].lessons;
@@ -53,6 +73,7 @@ export default function CourseLearningPage() {
     return null;
   };
 
+  // Mark lesson complete
   const markLessonComplete = async (moduleIndex, lessonIndex) => {
     const lessonKey = `${moduleIndex}-${lessonIndex}`;
     if (!progress.includes(lessonKey)) {
@@ -69,10 +90,10 @@ export default function CourseLearningPage() {
         setProgress(data.completedLessons);
 
         const nextLesson = findNextLessonWithVideo(moduleIndex, lessonIndex);
-        if (nextLesson) {
-          setCurrentLesson(nextLesson);
-        } else {
-          setCertificateVisible(true);
+        if (nextLesson) setCurrentLesson(nextLesson);
+        else {
+          // ✅ Course completed -> show test button instead of certificate
+          setShowTest(true);
         }
       } catch (err) {
         console.error("Error updating progress:", err);
@@ -88,7 +109,7 @@ export default function CourseLearningPage() {
     });
   };
 
-  if (!course || !course.curriculum || course.curriculum.length === 0)
+  if (!course || !course.curriculum?.length)
     return (
       <p className="text-center mt-20 text-xl font-semibold">
         Loading course...
@@ -100,6 +121,31 @@ export default function CourseLearningPage() {
   const completionPercentage = totalLessons
     ? Math.round((progress.length / totalLessons) * 100)
     : 0;
+
+  // ✅ Handle test pass
+  const handleTestPass = () => {
+    setTestPassed(true);
+    setShowTest(false);
+    setCertificateVisible(true);
+  };
+
+  // ✅ Handle test fail
+  const handleTestFail = () => {
+    alert("❌ You need at least 60% to pass the test. Try again!");
+  };
+
+  // ✅ If user is giving test, show only test
+  if (showTest) {
+    return (
+      <div className="p-6">
+        <FinalTestPage
+          courseId={id}
+          onPass={handleTestPass}
+          onFail={handleTestFail}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col lg:flex-row max-w-7xl mx-auto p-6 gap-6">
@@ -183,6 +229,18 @@ export default function CourseLearningPage() {
             {completionPercentage}% completed
           </p>
         </div>
+
+        {/* ✅ Show test button when course completed */}
+        {completionPercentage === 100 && !testPassed && (
+          <div className="mt-6 text-center">
+            <button
+              onClick={() => setShowTest(true)}
+              className="bg-purple-600 text-white px-5 py-3 rounded-lg hover:bg-purple-700 transition"
+            >
+              🎯 Take Final Test
+            </button>
+          </div>
+        )}
       </aside>
 
       {/* Main Content */}
@@ -190,59 +248,46 @@ export default function CourseLearningPage() {
         <h1 className="text-3xl font-bold mb-2">{lesson.title}</h1>
         <p className="text-gray-700 mb-4">{lesson.description}</p>
 
+        {/* Video player */}
         {currentVideo ? (
           <div className="mb-4 rounded shadow overflow-hidden relative">
-            <video
-              ref={videoRef}
-              className="w-full h-96"
-              controls
-              onEnded={() =>
-                markLessonComplete(currentLesson.module, currentLesson.lesson)
-              }
-            >
-              <source src={currentVideo.url} type="video/mp4" />
-            </video>
+            {isYouTube(currentVideo.url) ? (
+              <iframe
+                className="w-full h-96 rounded"
+                src={getYouTubeEmbedUrl(currentVideo.url)}
+                title={currentVideo.title}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></iframe>
+            ) : (
+              <video
+                ref={videoRef}
+                className="w-full h-96"
+                controls
+                onEnded={() =>
+                  markLessonComplete(currentLesson.module, currentLesson.lesson)
+                }
+              >
+                <source src={currentVideo.url} type="video/mp4" />
+              </video>
+            )}
           </div>
         ) : (
           <div className="mb-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 rounded">
-            ⚠️ No video is available for this lesson. Please proceed with
-            materials or wait for the next scheduled video.
+            ⚠️ No video available for this lesson.
           </div>
         )}
 
-        {lesson.materials?.length > 0 && (
-          <div className="mb-6">
-            <h2 className="font-semibold text-lg mb-2">Materials</h2>
-            <ul className="list-disc ml-5 space-y-1">
-              {lesson.materials.map((mat, i) => (
-                <li key={i}>
-                  <a
-                    href={mat.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-600 hover:underline"
-                  >
-                    {mat.title}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {lesson.liveLectureId && (
-          <div className="mt-4">
-            <h2 className="font-semibold text-lg mb-2">Join Live Lecture</h2>
-            <a
-              href={`https://skill-certification-portal.onrender.com/live/${lesson.liveLectureId}`}
-              target="_blank"
-              rel="noreferrer"
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-            >
-              Join Live Session
-            </a>
-            <LiveLectureSection courseId={id} />
-          </div>
+        {/* ✅ Manual Complete button for YouTube */}
+        {isYouTube(currentVideo?.url) && (
+          <button
+            onClick={() =>
+              markLessonComplete(currentLesson.module, currentLesson.lesson)
+            }
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Mark Lesson Complete
+          </button>
         )}
       </main>
 
@@ -260,28 +305,25 @@ export default function CourseLearningPage() {
               <motion.div className="bg-white p-8 rounded-lg max-w-lg text-center shadow-lg">
                 <h2 className="text-2xl font-bold mb-4">🎉 Congratulations!</h2>
                 <p className="mb-4">
-                  You have completed the course: {course.title}
+                  You passed the final test for {course.title}!
                 </p>
                 <button
                   onClick={async () => {
                     setGenerating(true);
                     try {
-                      const res = await fetch(
-                        `${host}/api/certificates/${id}`,
-                        {
-                          method: "POST",
-                          headers: {
-                            Authorization: `Bearer ${localStorage.getItem(
-                              "token"
-                            )}`,
-                          },
-                        }
-                      );
+                      const res = await fetch(`${host}/api/certificates/${id}`, {
+                        method: "POST",
+                        headers: {
+                          Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                          )}`,
+                        },
+                      });
                       const data = await res.json();
 
                       if (res.ok && data.certificateUrl) {
                         const fullUrl = `${host}${data.certificateUrl}`;
-                        window.open(fullUrl, "_blank"); // ✅ only once
+                        window.open(fullUrl, "_blank");
                         setCertificateVisible(false);
                       } else {
                         console.error("Certificate not generated:", data);

@@ -9,6 +9,10 @@ import progressRoutes from "./routes/progress.js";
 import certificateRoutes from "./routes/certificate.js"; // ← add this
 import path from "path";
 import { fileURLToPath } from "url";
+import testRoutes from "./routes/TestRoutes.js";
+
+
+
 
 dotenv.config();
 
@@ -31,6 +35,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/certificates", certificateRoutes); // ← register certificate route
+app.use("/api/tests", testRoutes);
 
 // Connect to MongoDB
 mongoose
