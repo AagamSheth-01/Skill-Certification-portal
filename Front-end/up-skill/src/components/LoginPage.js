@@ -5,6 +5,7 @@ export default function LoginPage() {
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const API_URL=process.env.REACT_APP_BACK_END_URL;
 
   // Redirect to profile if user is already logged in
   useEffect(() => {
@@ -17,7 +18,7 @@ export default function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("https://skill-certification-portal.onrender.com/api/auth/login", {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ usernameOrEmail, password }),

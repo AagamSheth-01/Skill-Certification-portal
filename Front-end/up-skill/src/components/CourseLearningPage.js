@@ -15,8 +15,8 @@ export default function CourseLearningPage() {
   const videoRef = useRef();
 
   const host =
-    process.env.REACT_APP_API_URL ||
-    "https://skill-certification-portal.onrender.com";
+    process.env.REACT_APP_API_URL;
+    
 
   // Fetch course and progress
   useEffect(() => {

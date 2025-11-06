@@ -18,7 +18,7 @@ const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(cors({
-    origin: ["https://skill-certification-portal.vercel.app"], // your frontend URL
+    origin: ["https://skill-certification-portal.vercel.app","http://localhost:3000"], // your frontend URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // if you're using cookies/auth
   }));

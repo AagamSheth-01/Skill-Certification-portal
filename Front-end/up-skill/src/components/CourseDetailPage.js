@@ -8,11 +8,12 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [progress, setProgress] = useState([]);
+  const API_URL=process.env.REACT_APP_BACK_END_URL;
 
 useEffect(() => {
   const fetchCourse = async () => {
     try {
-      const res = await fetch(`https://skill-certification-portal.onrender.com/api/courses/${id}`);
+      const res = await fetch(`${API_URL}/api/courses/${id}`);
       const data = await res.json();
       setCourse(data);
     } catch (err) {
@@ -25,7 +26,7 @@ useEffect(() => {
   fetchCourse();
 
   // Fetch user progress for this course
-  fetch(`https://skill-certification-portal.onrender.com/api/progress/${id}`, {
+  fetch(`${API_URL}/api/progress/${id}`, {
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   })
     .then(res => res.json())
@@ -48,7 +49,7 @@ const handleEnrollOrStart = async () => {
 
   // Otherwise, enroll
   try {
-    const res = await fetch(`https://skill-certification-portal.onrender.com/api/courses/${id}/enroll`, {
+    const res = await fetch(`${API_URL}/api/courses/${id}/enroll`, {
       method: "POST",
       headers: { "Authorization": `Bearer ${token}` }
     });

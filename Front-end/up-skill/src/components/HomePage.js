@@ -5,9 +5,9 @@ import { useNavigate } from "react-router-dom";
 function HomePage() {
   const [courses, setCourses] = useState([]);
   const navigate = useNavigate();
-
+  const API_URL=process.env.REACT_APP_BACK_END_URL;
   useEffect(() => {
-    fetch("https://skill-certification-portal.onrender.com/api/courses")
+    fetch(`${API_URL}/api/courses`)
       .then(res => res.json())
       .then(data => setCourses(data))
       .catch(err => console.error(err));

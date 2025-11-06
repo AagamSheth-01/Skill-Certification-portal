@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 export default function LiveLectureSection({ courseId }) {
-  const host = process.env.REACT_APP_API_URL || "https://skill-certification-portal.onrender.com/";
+  const host = process.env.REACT_APP_API_URL;
   const [lectures, setLectures] = useState([]);
   const [chatMessages, setChatMessages] = useState([]);
   const [selectedLecture, setSelectedLecture] = useState(null);

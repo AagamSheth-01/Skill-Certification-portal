@@ -8,6 +8,7 @@ export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const API_URL=process.env.REACT_APP_BACK_END_API;
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -15,7 +16,7 @@ export default function RegisterPage() {
     const payload = { fullName, username, email, password };
 
     try {
-      const res = await fetch("https://skill-certification-portal.onrender.com/api/auth/register", {
+      const res = await fetch(`${API_URL}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

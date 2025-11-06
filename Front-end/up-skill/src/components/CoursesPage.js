@@ -9,11 +9,13 @@ export default function CoursesPage() {
   const categoryRefs = useRef({});
   const navigate = useNavigate();
 
+  const API_URL=process.env.REACT_APP_BACK_END_URL;
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     // Fetch courses
-    fetch("https://skill-certification-portal.onrender.com/api/courses")
+    fetch(`${API_URL}/api/courses`)
       .then(res => res.json())
       .then(data => {
         setCourses(data);
@@ -41,7 +43,7 @@ export default function CoursesPage() {
       .catch(err => console.error(err));
 
     //Fetch user progress
-    fetch("https://skill-certification-portal.onrender.com/api/progress", {
+    fetch(`${API_URL}/api/progress`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then(res => res.json())
@@ -116,7 +118,7 @@ export default function CoursesPage() {
                   }`}
                 >
                   <img
-                    src={course.image ? (course.image.startsWith("http") ? course.image : `https://skill-certification-portal.onrender.com/${course.image}`) : "https://picsum.photos/300/150"}
+                    src={course.image ? (course.image.startsWith("http") ? course.image : `${API_URL}/${course.image}`) : "https://picsum.photos/300/150"}
                     alt={course.title}
                     className="course-img"
                   />
